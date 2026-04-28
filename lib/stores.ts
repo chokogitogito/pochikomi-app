@@ -10,7 +10,8 @@ export type Store = {
   googleMapsUrl: string; // GoogleマップのレビューページURL（Place IDを使ったもの）
   surveyOptions: {
     sources: string[]; // 来店経緯の選択肢
-    goodPoints: string[]; // 良かった点の選択肢
+    goodPoints: string[]; // 良かった点の選択肢（高評価時）
+    badPoints: string[]; // 改善してほしかった点の選択肢（低評価時）
   };
 };
 
@@ -40,6 +41,16 @@ export const stores: Record<string, Store> = {
         "対応・工期が速かった",
         "アフターフォローが充実していた",
         "提案内容が的確だった",
+      ],
+      badPoints: [
+        "説明が少し分かりにくかった",
+        "工期が予定より遅れた",
+        "価格が思ったより高かった",
+        "仕上がりが期待と少し違った",
+        "アフターフォローの連絡が遅かった",
+        "担当者によって対応にムラがあった",
+        "現場の片付けが不十分だった",
+        "提案の幅が少なかった",
       ],
     },
   },

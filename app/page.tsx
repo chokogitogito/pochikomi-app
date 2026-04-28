@@ -1,9 +1,19 @@
+import Image from "next/image";
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white flex items-center justify-center px-6">
       <div className="max-w-sm w-full text-center">
-        <div className="text-5xl mb-4">⭐</div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">ポチコミ</h1>
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/logo/logo.png"
+            alt="ポチコミ"
+            width={160}
+            height={160}
+            className="rounded-3xl shadow-md"
+            priority
+          />
+        </div>
         <p className="text-gray-500 text-sm mb-8 leading-relaxed">
           お店のQRコードを読み取ることで、<br />
           かんたんに口コミを投稿できます。
