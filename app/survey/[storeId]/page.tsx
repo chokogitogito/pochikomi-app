@@ -97,15 +97,15 @@ export default function SurveyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* ヘッダー */}
-      <div className="bg-teal-500 text-white px-6 py-3 shadow-sm flex items-center gap-3">
+      <div className="bg-green-500 text-white px-6 py-3 shadow-sm flex items-center gap-3">
         <Image
-          src="/logo/logo.png"
+          src="/logo/logo-v2.png"
           alt="ポチコミ"
-          width={40}
-          height={40}
-          className="rounded-xl flex-shrink-0"
+          width={80}
+          height={28}
+          className="object-contain flex-shrink-0"
         />
         <div>
           <p className="text-xs opacity-80">口コミ投稿のご協力をお願いします</p>
@@ -135,8 +135,8 @@ export default function SurveyPage() {
                   }}
                   className={`w-full text-left px-5 py-4 rounded-2xl border-2 text-base font-medium transition-all ${
                     source === s
-                      ? "border-teal-500 bg-teal-50 text-teal-700"
-                      : "border-gray-200 bg-white text-gray-700 hover:border-teal-300"
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-green-300"
                   }`}
                 >
                   {s}
@@ -172,8 +172,8 @@ export default function SurveyPage() {
 
             {/* 評価に応じたラベル */}
             <p className="text-center text-sm font-medium mb-8 h-5">
-              {rating === 5 && <span className="text-teal-500">とても満足！</span>}
-              {rating === 4 && <span className="text-teal-400">満足</span>}
+              {rating === 5 && <span className="text-green-500">とても満足！</span>}
+              {rating === 4 && <span className="text-green-400">満足</span>}
               {rating === 3 && <span className="text-gray-400">普通</span>}
               {rating === 2 && <span className="text-gray-400">やや不満</span>}
               {rating === 1 && <span className="text-gray-400">不満</span>}
@@ -181,7 +181,7 @@ export default function SurveyPage() {
 
             <button
               onClick={() => setStep("points")}
-              className="w-full py-4 rounded-2xl bg-teal-500 text-white font-bold text-lg hover:bg-teal-600 transition-colors shadow-sm"
+              className="w-full py-4 rounded-2xl bg-green-500 text-white font-bold text-lg hover:bg-green-600 transition-colors shadow-sm"
             >
               次へ →
             </button>
@@ -223,7 +223,7 @@ export default function SurveyPage() {
                   className={`w-full text-left px-5 py-4 rounded-2xl border-2 text-base font-medium transition-all flex items-center gap-3 ${
                     selectedPoints.includes(point)
                       ? isPositive
-                        ? "border-teal-500 bg-teal-50 text-teal-700"
+                        ? "border-green-500 bg-green-50 text-green-700"
                         : "border-gray-400 bg-gray-50 text-gray-700"
                       : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
                   }`}
@@ -231,7 +231,7 @@ export default function SurveyPage() {
                   <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
                     selectedPoints.includes(point)
                       ? isPositive
-                        ? "border-teal-500 bg-teal-500"
+                        ? "border-green-500 bg-green-500"
                         : "border-gray-500 bg-gray-500"
                       : "border-gray-300"
                   }`}>
@@ -251,7 +251,7 @@ export default function SurveyPage() {
               disabled={selectedPoints.length === 0}
               className={`mt-6 w-full py-4 rounded-2xl font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-white ${
                 isPositive
-                  ? "bg-teal-500 hover:bg-teal-600"
+                  ? "bg-green-500 hover:bg-green-600"
                   : "bg-gray-600 hover:bg-gray-700"
               }`}
             >
@@ -263,7 +263,7 @@ export default function SurveyPage() {
         {/* ローディング */}
         {step === "generating" && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 border-4 border-teal-200 border-t-teal-500 rounded-full animate-spin mb-6" />
+            <div className="w-16 h-16 border-4 border-green-200 border-t-green-500 rounded-full animate-spin mb-6" />
             <p className="text-gray-700 font-medium text-lg">口コミ文章を作成中...</p>
             <p className="text-gray-400 text-sm mt-2">少々お待ちください</p>
           </div>
@@ -284,7 +284,7 @@ export default function SurveyPage() {
 
             {/* 生成された文章 */}
             <div className={`border-2 rounded-2xl p-5 mb-4 shadow-sm bg-white ${
-              isPositive ? "border-teal-200" : "border-gray-200"
+              isPositive ? "border-green-200" : "border-gray-200"
             }`}>
               <p className="text-gray-700 text-base leading-relaxed">{reviewText}</p>
             </div>
@@ -296,7 +296,7 @@ export default function SurveyPage() {
                 copied
                   ? "bg-green-500"
                   : isPositive
-                  ? "bg-teal-500 hover:bg-teal-600"
+                  ? "bg-green-500 hover:bg-green-600"
                   : "bg-gray-600 hover:bg-gray-700"
               }`}
             >
@@ -308,7 +308,7 @@ export default function SurveyPage() {
               href={store.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full py-4 rounded-2xl border-2 border-gray-300 text-center font-bold text-gray-700 text-lg hover:border-teal-400 hover:text-teal-600 transition-all"
+              className="block w-full py-4 rounded-2xl border-2 border-gray-300 text-center font-bold text-gray-700 text-lg hover:border-green-400 hover:text-green-600 transition-all"
             >
               🗺️ Googleマップで投稿する
             </a>
@@ -332,7 +332,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
         <div
           key={i}
           className={`h-1.5 flex-1 rounded-full transition-all ${
-            i + 1 <= current ? "bg-teal-500" : "bg-gray-200"
+            i + 1 <= current ? "bg-green-500" : "bg-gray-200"
           }`}
         />
       ))}

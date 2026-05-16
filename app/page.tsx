@@ -2,15 +2,15 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 to-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center px-6">
       <div className="max-w-sm w-full text-center">
         <div className="flex justify-center mb-6">
           <Image
-            src="/logo/logo.png"
+            src="/logo/logo-v2.png"
             alt="ポチコミ"
-            width={160}
-            height={160}
-            className="rounded-3xl shadow-md"
+            width={280}
+            height={100}
+            className="object-contain"
             priority
           />
         </div>
@@ -28,7 +28,7 @@ export default function Home() {
           <p className="text-xs text-gray-300 mb-2">── 開発用テスト ──</p>
           <a
             href="/survey/test-store"
-            className="inline-block text-sm text-orange-400 underline"
+            className="inline-block text-sm text-green-500 underline"
           >
             テスト店舗のアンケートを開く
           </a>
