@@ -10,6 +10,7 @@ import {
   getPrimaryCouponFromSupabase,
   recordEventToSupabase,
   getMetricsFromSupabase,
+  issueCouponFromSupabase,
   normalizeSlug,
 } from "@/lib/repositories/supabase-repository";
 
@@ -173,6 +174,15 @@ export async function getPrimaryCoupon(storeId: string): Promise<Coupon | null> 
 }
 
 export async function issueCoupon(storeId: string): Promise<Coupon | null> {
+  if (isSupabaseConfigured()) {
+    try {
+      const coupon = await issueCouponFromSupabase(storeId);
+      if (coupon) return coupon;
+    } catch (error) {
+      console.error("[db] Supabase issueCoupon error, fallback to local:", error);
+    }
+  }
+
   const db = await readDb();
   const coupon = db.coupons.find((item) => item.storeId === storeId && item.active);
 

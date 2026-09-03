@@ -3,7 +3,7 @@
 ## 基本情報
 - project_id: 18
 - project_name: ポチコミ（MEO支援ツール）
-- status: in-progress (Pro契約先行・本番稼働実装)
+- status: production-active (Supabase Pro本番稼働完了)
 - code_rel: `02_Apps_Tools/18_ポチコミ_MEO支援ツール/pochikomi-app`
 - code_path: `/Users/yamadanaoyuki/Documents/01_Obsidian/00_DevVault/02_Apps_Tools/18_ポチコミ_MEO支援ツール/pochikomi-app`
 - docs_rel: `02_Projects/03_Dev/02_Apps_Tools/18_ポチコミ`
@@ -19,9 +19,9 @@
 - 判断役: Codex または Claude Opus（実装役と別ベンダー枠）
 
 ## 最新の現在地 (2026-09-04)
-- 003計画（Pro契約先行・本番稼働までの実装計画）に基づき、Supabase Pro契約確認・ポチコミ専用Project作成と並行して、ローカル実装・テスト・本番稼働作業を進行中。
-- Git HEAD: `4963561`
-- Phase 0（規約・基盤正常化）を実行中。
+- 003計画（Pro契約先行・本番稼働までの実装計画）の全フェーズ完了。
+- Supabase Pro本番プロジェクト（`pochikomi-prod`）稼働、全テーブルRLS、30日TTL cache、Auth保護、Vercel環境変数設定、実地通信検証すべて完了。
+- Git HEAD: `f868a79`
 
 ## 作業ルール
 - 設計・仕様・タスクの正本は `docs_path`（Obsidian側）を参照・更新する。

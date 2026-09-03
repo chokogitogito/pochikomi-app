@@ -4,12 +4,27 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/types";
 import type { Store, Coupon, StoreMetrics, StoreEvent } from "@/lib/types";
 
-// slugの正規化（後方互換性エイリアス）
+// slugの厳格バリデーションおよび正規化（英数字、ハイフン、アンダースコアのみ許可）
+export function validateAndNormalizeSlug(slug: string): string | null {
+  if (!slug || typeof slug !== "string") return null;
+  const trimmed = slug.trim();
+  // 許可文字: 英数字、ハイフン、アンダースコア (1〜64文字)
+  // カンマやピリオド、括弧などPostgREST構文を破壊しうる文字は即座に拒絶
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(trimmed)) {
+    return null;
+  }
+
+  // 後方互換性エイリアスのマッピング
+  if (trimmed === "classic") return "golf-a";
+  if (trimmed === "ss-grand") return "golf-b";
+  if (trimmed === "demo-golf") return "golf";
+  return trimmed;
+}
+
+// 後方互換用（文字列のみ返す版）
 export function normalizeSlug(slug: string): string {
-  if (slug === "classic") return "golf-a";
-  if (slug === "ss-grand") return "golf-b";
-  if (slug === "demo-golf") return "golf";
-  return slug;
+  const validated = validateAndNormalizeSlug(slug);
+  return validated || slug;
 }
 
 interface RawLocation {
@@ -30,10 +45,53 @@ interface RawLocation {
 
 interface RawCoupon {
   id: string;
+  organization_id: string;
+  location_id: string;
   title: string;
   description: string;
+  badge_text: string | null;
+  expiry_date: string | null;
   is_active: boolean;
   locations?: { public_slug: string };
+}
+
+/**
+ * 安全な店舗検索ヘルパー（PostgREST生文字列結合を完全廃止し、パラメータ化クエリで検索）
+ */
+async function findLocationBySlug(
+  supabase: ReturnType<typeof createAdminClient>,
+  slugOrId: string
+): Promise<RawLocation | null> {
+  const safeSlug = validateAndNormalizeSlug(slugOrId);
+  if (!safeSlug) return null;
+
+  // 1. まず public_slug 一致で安全に検索
+  const { data: primaryLoc, error: primaryErr } = await supabase
+    .from("locations")
+    .select("*")
+    .eq("public_slug", safeSlug)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!primaryErr && primaryLoc) {
+    return primaryLoc as unknown as RawLocation;
+  }
+
+  // 2. 見つからなければ legacy_slugs 配列含有で安全に検索
+  const { data: legacyLoc, error: legacyErr } = await supabase
+    .from("locations")
+    .select("*")
+    .contains("legacy_slugs", [safeSlug])
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!legacyErr && legacyLoc) {
+    return legacyLoc as unknown as RawLocation;
+  }
+
+  return null;
 }
 
 export async function getStoresFromSupabase(): Promise<Store[]> {
@@ -53,34 +111,46 @@ export async function getStoresFromSupabase(): Promise<Store[]> {
 }
 
 export async function getStoreFromSupabase(slugOrId: string): Promise<Store | null> {
-  const normalized = normalizeSlug(slugOrId);
   const supabase = createAdminClient();
-
-  const { data, error } = await supabase
-    .from("locations")
-    .select("*")
-    .or(`public_slug.eq.${normalized},legacy_slugs.cs.{${normalized}}`)
-    .eq("is_active", true)
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return mapLocationToStore(data as unknown as RawLocation);
+  const location = await findLocationBySlug(supabase, slugOrId);
+  if (!location) return null;
+  return mapLocationToStore(location);
 }
 
 export async function getCouponsFromSupabase(storeId?: string): Promise<Coupon[]> {
   const supabase = createAdminClient();
-  let query = supabase.from("coupons").select("*, locations!inner(public_slug)").eq("is_active", true);
 
   if (storeId) {
-    const normalized = normalizeSlug(storeId);
-    query = query.eq("locations.public_slug", normalized);
+    const location = await findLocationBySlug(supabase, storeId);
+    if (!location) return [];
+
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("location_id", location.id)
+      .eq("is_active", true);
+
+    if (error || !data) {
+      console.error("[supabase-repo] getCoupons error:", error);
+      return [];
+    }
+
+    return (data as unknown as RawCoupon[]).map((item) => ({
+      id: item.id,
+      storeId: location.public_slug,
+      title: item.title,
+      description: item.description,
+      expiresInDays: 30,
+      issuedCount: 0,
+      active: item.is_active,
+    }));
   }
 
-  const { data, error } = await query;
+  const { data, error } = await supabase
+    .from("coupons")
+    .select("*, locations!inner(public_slug)")
+    .eq("is_active", true);
+
   if (error || !data) {
     console.error("[supabase-repo] getCoupons error:", error);
     return [];
@@ -88,7 +158,7 @@ export async function getCouponsFromSupabase(storeId?: string): Promise<Coupon[]
 
   return (data as unknown as RawCoupon[]).map((item) => ({
     id: item.id,
-    storeId: item.locations?.public_slug || storeId || "",
+    storeId: item.locations?.public_slug || "",
     title: item.title,
     description: item.description,
     expiresInDays: 30,
@@ -102,30 +172,71 @@ export async function getPrimaryCouponFromSupabase(storeId: string): Promise<Cou
   return coupons.length > 0 ? coupons[0] : null;
 }
 
+/**
+ * Supabaseでクーポンを発行し記録する（P2解消）
+ */
+export async function issueCouponFromSupabase(storeId: string): Promise<Coupon | null> {
+  const supabase = createAdminClient();
+  const location = await findLocationBySlug(supabase, storeId);
+  if (!location) return null;
+
+  // 店舗の有効なクーポンを1件取得
+  const { data: coupon, error: couponErr } = await supabase
+    .from("coupons")
+    .select("*")
+    .eq("location_id", location.id)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (couponErr || !coupon) {
+    console.error("[supabase-repo] issueCoupon error - no active coupon found:", couponErr);
+    return null;
+  }
+
+  const rawCoupon = coupon as unknown as RawCoupon;
+
+  // クーポン発行履歴（coupon_issues）へ記録
+  const issuePayload: Database["public"]["Tables"]["coupon_issues"]["Insert"] = {
+    coupon_id: rawCoupon.id,
+    session_id: null,
+  };
+
+  const { error: issueErr } = await (
+    supabase.from("coupon_issues") as unknown as {
+      insert: (data: typeof issuePayload) => Promise<{ error: unknown }>;
+    }
+  ).insert(issuePayload);
+
+  if (issueErr) {
+    console.warn("[supabase-repo] coupon_issues insert warning:", issueErr);
+  }
+
+  return {
+    id: rawCoupon.id,
+    storeId: location.public_slug,
+    title: rawCoupon.title,
+    description: rawCoupon.description,
+    expiresInDays: 30,
+    issuedCount: 1,
+    active: rawCoupon.is_active,
+  };
+}
+
 export async function recordEventToSupabase(
   storeId: string,
   type: string,
   payload: Record<string, unknown> | null
 ): Promise<StoreEvent | null> {
-  const normalized = normalizeSlug(storeId);
   const supabase = createAdminClient();
-
-  const { data: location } = await supabase
-    .from("locations")
-    .select("id, organization_id")
-    .or(`public_slug.eq.${normalized},legacy_slugs.cs.{${normalized}}`)
-    .limit(1)
-    .maybeSingle();
-
+  const location = await findLocationBySlug(supabase, storeId);
   if (!location) {
     return null;
   }
 
-  const loc = location as { id: string; organization_id: string };
-
   const newEvent: Database["public"]["Tables"]["events"]["Insert"] = {
-    organization_id: loc.organization_id,
-    location_id: loc.id,
+    organization_id: location.organization_id,
+    location_id: location.id,
     event_type: type,
     metadata: (payload ?? {}) as Database["public"]["Tables"]["events"]["Insert"]["metadata"],
   };
@@ -145,7 +256,7 @@ export async function recordEventToSupabase(
   const row = data as { id: string; event_type: string; metadata: Record<string, unknown>; occurred_at: string };
   return {
     id: row.id,
-    storeId: normalized,
+    storeId: location.public_slug,
     type: row.event_type,
     payload: row.metadata,
     receivedAt: row.occurred_at,
@@ -153,19 +264,12 @@ export async function recordEventToSupabase(
 }
 
 export async function getMetricsFromSupabase(storeId: string): Promise<StoreMetrics> {
-  const normalized = normalizeSlug(storeId);
   const supabase = createAdminClient();
-
-  const { data: location } = await supabase
-    .from("locations")
-    .select("id")
-    .or(`public_slug.eq.${normalized},legacy_slugs.cs.{${normalized}}`)
-    .limit(1)
-    .maybeSingle();
+  const location = await findLocationBySlug(supabase, storeId);
 
   if (!location) {
     return {
-      storeId: normalized,
+      storeId,
       surveyStarts: 0,
       generatedReviews: 0,
       reviewClicks: 0,
@@ -174,12 +278,10 @@ export async function getMetricsFromSupabase(storeId: string): Promise<StoreMetr
     };
   }
 
-  const loc = location as { id: string };
-
   const { data: events } = await supabase
     .from("events")
     .select("event_type, metadata")
-    .eq("location_id", loc.id);
+    .eq("location_id", location.id);
 
   let surveyStarts = 0;
   let generatedReviews = 0;
@@ -205,7 +307,7 @@ export async function getMetricsFromSupabase(storeId: string): Promise<StoreMetr
   });
 
   return {
-    storeId: normalized,
+    storeId: location.public_slug,
     surveyStarts,
     generatedReviews,
     reviewClicks,

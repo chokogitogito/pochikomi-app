@@ -300,6 +300,32 @@ export interface Database {
           updated_at?: string;
         };
       };
+      coupon_issues: {
+        Row: {
+          id: string;
+          coupon_id: string;
+          session_id: string | null;
+          code_hash: string | null;
+          issued_at: string;
+          redeemed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          coupon_id: string;
+          session_id?: string | null;
+          code_hash?: string | null;
+          issued_at?: string;
+          redeemed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          coupon_id?: string;
+          session_id?: string | null;
+          code_hash?: string | null;
+          issued_at?: string;
+          redeemed_at?: string | null;
+        };
+      };
       gbp_review_cache: {
         Row: {
           id: string;
