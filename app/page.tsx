@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen bg-canvas text-text-primary flex items-center justify-center px-6 py-12">
       <div className="max-w-sm w-full text-center">
         <div className="flex justify-center mb-6">
-          <Logo variant="horizontal" size={38} className="text-brand" />
+          <Logo size={44} />
         </div>
         <p className="text-text-secondary text-sm mb-8 leading-relaxed">
           店舗のQRコードを読み取って、<br />
