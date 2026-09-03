@@ -179,7 +179,7 @@ export default function StoreForm({
         <button
           onClick={save}
           disabled={saving || !store.name || !store.category}
-          className="rounded-lg bg-green-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
+          className="rounded-xl bg-brand hover:bg-brand-hover px-5 py-3 text-sm font-bold text-white disabled:opacity-50 pressable shadow-brand"
         >
           {saving ? "保存中..." : "店舗を保存する"}
         </button>

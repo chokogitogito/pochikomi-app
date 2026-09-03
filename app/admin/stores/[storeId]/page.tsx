@@ -20,7 +20,7 @@ export default async function EditStorePage({
   return (
     <main className="min-h-screen bg-slate-50 px-5 py-6 text-slate-900">
       <div className="mx-auto max-w-5xl">
-        <Link href="/admin" className="text-sm font-bold text-green-600 underline">
+        <Link href="/admin" className="text-sm font-bold text-brand hover:underline">
           管理画面へ戻る
         </Link>
         <h1 className="mt-4 text-2xl font-bold">店舗編集</h1>

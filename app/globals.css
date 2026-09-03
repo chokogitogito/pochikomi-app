@@ -1,22 +1,124 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ブランドカラー：彩度を抑えた品格あるフォレストグリーン */
+  --brand: #1b5e3b;
+  --brand-hover: #164e31;
+  --brand-active: #124027;
+  --brand-light: #f0f7f3;
+  --brand-subtle: #e1efe7;
+  --brand-border: #b8dbc7;
+  --brand-text: #1b5e3b;
+
+  /* 面（Surface）と背景（Canvas） */
+  --bg-canvas: #f8f9fa;
+  --bg-surface: #ffffff;
+  --bg-surface-secondary: #f2f3f5;
+  --bg-surface-tertiary: #e9eaec;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+
+  /* 境界（Border） */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+
+  /* 文字色階層（Typography） */
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --text-quaternary: #aeaeb2;
+
+  /* 影 */
+  --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-brand: 0 4px 16px rgba(27, 94, 59, 0.22);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-light: var(--brand-light);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-border: var(--brand-border);
+  --color-brand-text: var(--brand-text);
+
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-secondary: var(--bg-surface-secondary);
+  --color-surface-tertiary: var(--bg-surface-tertiary);
+  --color-glass: var(--bg-glass);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-quaternary: var(--text-quaternary);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* スマホでのタップ時のハイライトを消す */
+/* スマホでのタップ時の青いハイライトを消す */
 * {
   -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Apple風の即時押下フィードバック */
+.pressable {
+  transition: transform 100ms ease-out, background-color 100ms ease-out, border-color 100ms ease-out;
+  touch-action: manipulation;
+  user-select: none;
+}
+.pressable:active {
+  transform: scale(0.976);
+}
+
+/* すりガラスナビゲーション */
+.frosted-nav {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* タイポグラフィ見出し用（ネガティブトラッキング） */
+.display-heading {
+  letter-spacing: -0.025em;
+}
+
+/* iPhoneセーフエリア下部余白 */
+.safe-area-bottom {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 20px));
+}
+
+/* 減速モーション */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .pressable:active {
+    transform: none !important;
+  }
+}
+
+/* 透過度低減モード */
+@media (prefers-reduced-transparency: reduce) {
+  .frosted-nav {
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }

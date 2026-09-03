@@ -44,28 +44,28 @@ export default async function AdminPage() {
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-medium text-green-600">Pochikomi Admin</p>
-            <h1 className="mt-1 text-2xl font-bold">管理ダッシュボード</h1>
-            <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            <p className="text-sm font-bold text-brand">Pochikomi Admin</p>
+            <h1 className="mt-1 text-2xl font-bold display-heading text-text-primary">管理ダッシュボード</h1>
+            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
               店舗、QR、口コミ生成、クーポン、今後のAPI連携をまとめて管理するためのMVP画面です。
             </p>
           </div>
           <div className="flex gap-2">
             <Link
               href="/admin/stores/new"
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm"
+              className="rounded-xl border border-border-default bg-surface px-4 py-2 text-sm font-bold text-text-primary shadow-sm pressable hover:bg-surface-secondary"
             >
               店舗追加
             </Link>
             <Link
               href="/admin/qr"
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm"
+              className="rounded-xl border border-border-default bg-surface px-4 py-2 text-sm font-bold text-text-primary shadow-sm pressable hover:bg-surface-secondary"
             >
               QR管理
             </Link>
             <Link
               href="/admin/coupons"
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white shadow-sm"
+              className="rounded-xl bg-brand hover:bg-brand-hover px-4 py-2 text-sm font-bold text-white shadow-brand pressable"
             >
               クーポン発行
             </Link>
@@ -129,7 +129,7 @@ export default async function AdminPage() {
                           </Link>
                           <Link
                             href={`/survey/${store.id}`}
-                            className="text-sm font-bold text-green-600 underline"
+                            className="text-sm font-bold text-brand hover:underline"
                           >
                             アンケート
                           </Link>
@@ -197,8 +197,8 @@ function Roadmap({
   return (
     <div className="flex gap-3 rounded-lg bg-slate-50 p-4">
       <div
-        className={`mt-1 h-3 w-3 rounded-full ${
-          done ? "bg-green-500" : "bg-slate-300"
+        className={`mt-1.5 h-2.5 w-2.5 rounded-full shrink-0 ${
+          done ? "bg-brand" : "bg-border-default"
         }`}
       />
       <div>

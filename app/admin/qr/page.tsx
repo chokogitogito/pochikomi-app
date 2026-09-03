@@ -32,7 +32,7 @@ export default function QRPage() {
       <div className="max-w-md mx-auto">
         {/* ヘッダー */}
         <div className="mb-6">
-          <Link href="/admin" className="text-sm font-bold text-green-600 underline">
+          <Link href="/admin" className="text-sm font-bold text-brand hover:underline">
             管理画面へ戻る
           </Link>
           <h1 className="text-xl font-bold text-gray-800">QRコード管理</h1>

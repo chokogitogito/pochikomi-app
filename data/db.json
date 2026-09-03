@@ -148,11 +148,11 @@
   "metrics": [
     {
       "storeId": "classic",
-      "surveyStarts": 97,
-      "generatedReviews": 71,
-      "reviewClicks": 54,
+      "surveyStarts": 99,
+      "generatedReviews": 73,
+      "reviewClicks": 55,
       "couponsIssued": 13,
-      "averageRating": 4.6
+      "averageRating": 4.2
     },
     {
       "storeId": "ss-grand",
@@ -172,6 +172,65 @@
         "source": "Google検索"
       },
       "receivedAt": "2026-09-02T23:54:46.863Z"
+    },
+    {
+      "id": "evt-mtkrshhx-mjhkeb",
+      "storeId": "classic",
+      "type": "survey_started",
+      "payload": {
+        "source": "ホームページを見て"
+      },
+      "receivedAt": "2026-09-03T00:11:40.053Z"
+    },
+    {
+      "id": "evt-mtkrtm2q-2vak0a",
+      "storeId": "classic",
+      "type": "review_generated",
+      "payload": {
+        "rating": 4,
+        "selectedPoints": [
+          "体の使い方から教えてもらえた",
+          "スコアやショットが実際に良くなった",
+          "屋内で天候に左右されず練習できる",
+          "予約が取りやすく通いやすい",
+          "スイングの課題を的確に指摘してもらえた"
+        ],
+        "menu": "レンジレッスン（グループ）"
+      },
+      "receivedAt": "2026-09-03T00:12:32.642Z"
+    },
+    {
+      "id": "evt-mtkrzf4v-vdwo3g",
+      "storeId": "classic",
+      "type": "review_clicked",
+      "payload": null,
+      "receivedAt": "2026-09-03T00:17:03.583Z"
+    },
+    {
+      "id": "evt-mtks8s5n-olwfso",
+      "storeId": "classic",
+      "type": "survey_started",
+      "payload": {
+        "source": "Googleマップ"
+      },
+      "receivedAt": "2026-09-03T00:24:20.363Z"
+    },
+    {
+      "id": "evt-mtks9dft-rgdgyv",
+      "storeId": "classic",
+      "type": "review_generated",
+      "payload": {
+        "rating": 4,
+        "selectedPoints": [
+          "スイングの課題を的確に指摘してもらえた",
+          "数値やデータで説明してもらえた",
+          "体の使い方から教えてもらえた",
+          "初心者にも分かりやすい説明だった",
+          "自分に合った練習メニューを組んでもらえた"
+        ],
+        "menu": "レンジレッスン（グループ）"
+      },
+      "receivedAt": "2026-09-03T00:24:47.945Z"
     }
   ]
 }

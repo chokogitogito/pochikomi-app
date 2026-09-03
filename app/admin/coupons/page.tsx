@@ -119,7 +119,7 @@ export default function CouponAdminPage() {
     <main className="min-h-screen bg-slate-50 px-5 py-6 text-slate-900">
       <div className="mx-auto max-w-4xl">
         <header className="border-b border-slate-200 pb-6">
-          <Link href="/admin" className="text-sm font-bold text-green-600 underline">
+          <Link href="/admin" className="text-sm font-bold text-brand hover:underline">
             管理画面へ戻る
           </Link>
           <h1 className="mt-4 text-2xl font-bold">クーポン発行</h1>
@@ -129,12 +129,12 @@ export default function CouponAdminPage() {
         </header>
 
         <section className="mt-6 grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-border-default bg-surface p-5 shadow-card">
             <label className="block text-sm font-bold text-slate-700">店舗</label>
             <select
               value={storeId}
               onChange={(event) => setStoreId(event.target.value)}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm"
+              className="mt-2 w-full rounded-xl border border-border-default bg-surface px-4 py-3 text-sm"
             >
               {stores.map((store) => (
                 <option key={store.id} value={store.id}>
@@ -145,15 +145,15 @@ export default function CouponAdminPage() {
             <button
               onClick={issueCoupon}
               disabled={loading}
-              className="mt-4 w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+              className="mt-4 w-full rounded-xl bg-brand hover:bg-brand-hover px-4 py-3 text-sm font-bold text-white disabled:opacity-50 shadow-brand pressable"
             >
               {loading ? "発行中..." : "テスト発行する"}
             </button>
 
             {issuedCoupon && (
-              <div className="mt-5 rounded-lg border border-green-100 bg-green-50 p-5 text-center">
-                <p className="text-xs text-green-700">{issuedCoupon.storeName}</p>
-                <p className="mt-1 text-sm font-bold text-green-800">
+              <div className="mt-5 rounded-xl border border-brand-border bg-brand-light p-5 text-center">
+                <p className="text-xs text-brand font-medium">{issuedCoupon.storeName}</p>
+                <p className="mt-1 text-sm font-bold text-brand-text">
                   {issuedCoupon.title}
                 </p>
                 <p className="mt-3 text-2xl font-bold tracking-wide text-slate-900">
@@ -261,7 +261,7 @@ export default function CouponAdminPage() {
                     <p className="text-sm font-bold text-slate-800">{coupon.title}</p>
                     <button
                       onClick={() => editCoupon(coupon)}
-                      className="text-xs font-bold text-green-600 underline"
+                      className="text-xs font-bold text-brand hover:underline"
                     >
                       編集
                     </button>
