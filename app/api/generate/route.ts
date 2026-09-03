@@ -7,7 +7,7 @@ import { buildPrompt, type SurveyAnswers } from "@/lib/prompt";
 import { buildMockDrafts } from "@/lib/mockReview";
 import type { ReviewDraft, ReviewTone } from "@/lib/types";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 const TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS) || 12000;
 const TONES: ReviewTone[] = ["friendly", "standard", "polite"];
 

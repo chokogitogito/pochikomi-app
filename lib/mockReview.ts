@@ -19,12 +19,20 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
     ? (/[。！？!?]$/.test(comment.trim()) ? comment.trim() : `${comment.trim()}。`)
     : "";
 
+  const sourceLead = (() => {
+    if (!sourceText) return `${storeName}に行ってきました。`;
+    if (sourceText.endsWith("て") || sourceText.endsWith("で")) {
+      return `${sourceText}、${storeName}に行ってきました。`;
+    }
+    return `${sourceText}で見つけて${storeName}に行ってきました。`;
+  })();
+
   if (isPositive) {
     return [
       {
         tone: "friendly",
         text: join([
-          sourceText ? `${sourceText}で見つけて${storeName}に行ってきました。` : `${storeName}に行ってきました。`,
+          sourceLead,
           menuText ? `${menuText}をお願いしました。` : "",
           point1 ? `${point1}のがうれしかったです。` : "",
           point2 ? `${point2}のも良かったです。` : "",
