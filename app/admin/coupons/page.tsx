@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import type { Coupon, Store } from "@/lib/types";
 
 type IssuedCoupon = {
@@ -116,21 +115,19 @@ export default function CouponAdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-6 text-slate-900">
-      <div className="mx-auto max-w-4xl">
-        <header className="border-b border-slate-200 pb-6">
-          <Link href="/admin" className="text-sm font-bold text-brand hover:underline">
-            管理画面へ戻る
-          </Link>
-          <h1 className="mt-4 text-2xl font-bold">クーポン発行</h1>
-          <p className="mt-2 text-sm leading-relaxed text-slate-500">
-            アンケート回答のお礼として発行する特典の動作確認画面です。口コミ投稿を条件にしない設計にしています。
-          </p>
-        </header>
+    <div className="p-6 md:p-8 max-w-5xl">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-text-primary display-heading">クーポン管理</h1>
+        <p className="text-text-secondary text-sm mt-1">
+          アンケート回答のお礼として発行する特典の管理画面です。口コミ投稿を条件にしない設計にしています。
+        </p>
+      </header>
 
-        <section className="mt-6 grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-2xl border border-border-default bg-surface p-5 shadow-card">
-            <label className="block text-sm font-bold text-slate-700">店舗</label>
+      <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="rounded-2xl border border-border-default bg-surface p-6 shadow-card">
+          <label className="block text-xs font-bold uppercase tracking-wider text-text-tertiary mb-2">
+            店舗
+          </label>
             <select
               value={storeId}
               onChange={(event) => setStoreId(event.target.value)}
@@ -244,7 +241,7 @@ export default function CouponAdminPage() {
               <button
                 onClick={saveCoupon}
                 disabled={saving || !couponForm.storeId || !couponForm.title}
-                className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+                className="w-full rounded-xl bg-text-primary px-4 py-3 text-sm font-bold text-white shadow-sm pressable hover:bg-black disabled:opacity-40"
               >
                 {saving ? "保存中..." : "クーポンを保存する"}
               </button>
@@ -252,31 +249,30 @@ export default function CouponAdminPage() {
           </div>
         </section>
 
-        <section className="mt-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-bold">登録済みクーポン</h2>
-            <div className="mt-4 space-y-3">
-              {coupons.map((coupon) => (
-                <div key={coupon.id} className="rounded-lg border border-slate-100 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-bold text-slate-800">{coupon.title}</p>
-                    <button
-                      onClick={() => editCoupon(coupon)}
-                      className="text-xs font-bold text-brand hover:underline"
-                    >
-                      編集
-                    </button>
-                  </div>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                    {coupon.description}
-                  </p>
-                  <p className="mt-2 text-xs text-slate-400">
-                    店舗ID: {coupon.storeId} / 発行済み {coupon.issuedCount}件
-                  </p>
+        <section className="mt-6 rounded-2xl border border-border-default bg-surface p-6 shadow-card">
+          <h2 className="text-base font-bold text-text-primary">登録済みクーポン一覧</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {coupons.map((coupon) => (
+              <div key={coupon.id} className="rounded-xl border border-border-subtle bg-surface-secondary/40 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-bold text-text-primary">{coupon.title}</p>
+                  <button
+                    onClick={() => editCoupon(coupon)}
+                    className="text-xs font-bold text-brand hover:underline pressable"
+                  >
+                    編集
+                  </button>
                 </div>
-              ))}
-            </div>
+                <p className="mt-1 text-xs leading-relaxed text-text-secondary">
+                  {coupon.description}
+                </p>
+                <p className="mt-2 text-[11px] text-text-tertiary">
+                  店舗: {coupon.storeId} / 発行済み {coupon.issuedCount}件 / 有効期限 {coupon.expiresInDays}日
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
-      </div>
-    </main>
+    </div>
   );
 }

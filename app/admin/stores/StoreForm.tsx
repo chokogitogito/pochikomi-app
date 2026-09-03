@@ -66,7 +66,7 @@ export default function StoreForm({
   };
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-border-default bg-surface p-6 shadow-card">
       <div className="grid gap-4 md:grid-cols-2">
         <TextField
           label="店舗ID"
