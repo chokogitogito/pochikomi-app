@@ -1,209 +1,449 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { getAllMetrics, getCoupons, getStores } from "@/lib/db";
+import meoData from "@/data/meo-diagnosis.json";
+import { CompetitorScatterChart, GbpTrendChart, FunnelChart } from "@/components/admin/MeoCharts";
 
-export const dynamic = "force-dynamic";
+export default function AdminDashboardPage() {
+  const [selectedStoreId, setSelectedStoreId] = useState<"all" | "classic" | "ss-grand">("all");
 
-const planLabels = {
-  starter: "スターター",
-  growth: "運用支援",
-  premium: "上位運用",
-};
+  const classicDiagnosis = meoData.stores.classic;
+  const ssGrandDiagnosis = meoData.stores["ss-grand"];
 
-const statusLabels = {
-  active: "運用中",
-  setup: "準備中",
-  paused: "停止中",
-};
-
-export default async function AdminPage() {
-  const stores = await getStores();
-  const coupons = await getCoupons();
-  const metrics = await getAllMetrics();
-  const totals = stores.reduce(
-    (acc, store) => {
-      const item = metrics.find((metric) => metric.storeId === store.id) ?? {
-        storeId: store.id,
-        surveyStarts: 0,
-        generatedReviews: 0,
-        reviewClicks: 0,
-        couponsIssued: 0,
-        averageRating: 0,
-      };
-      return {
-        surveyStarts: acc.surveyStarts + item.surveyStarts,
-        generatedReviews: acc.generatedReviews + item.generatedReviews,
-        reviewClicks: acc.reviewClicks + item.reviewClicks,
-        couponsIssued: acc.couponsIssued + item.couponsIssued,
-      };
-    },
-    { surveyStarts: 0, generatedReviews: 0, reviewClicks: 0, couponsIssued: 0 }
-  );
+  const currentGbp =
+    selectedStoreId === "ss-grand"
+      ? ssGrandDiagnosis.gbpPerformance
+      : classicDiagnosis.gbpPerformance;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-6 text-slate-900">
-      <div className="mx-auto max-w-6xl">
-        <header className="flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-bold text-brand">Pochikomi Admin</p>
-            <h1 className="mt-1 text-2xl font-bold display-heading text-text-primary">管理ダッシュボード</h1>
-            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-              店舗、QR、口コミ生成、クーポン、今後のAPI連携をまとめて管理するためのMVP画面です。
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href="/admin/stores/new"
-              className="rounded-xl border border-border-default bg-surface px-4 py-2 text-sm font-bold text-text-primary shadow-sm pressable hover:bg-surface-secondary"
-            >
-              店舗追加
-            </Link>
-            <Link
-              href="/admin/qr"
-              className="rounded-xl border border-border-default bg-surface px-4 py-2 text-sm font-bold text-text-primary shadow-sm pressable hover:bg-surface-secondary"
-            >
-              QR管理
-            </Link>
-            <Link
-              href="/admin/coupons"
-              className="rounded-xl bg-brand hover:bg-brand-hover px-4 py-2 text-sm font-bold text-white shadow-brand pressable"
-            >
-              クーポン発行
-            </Link>
-          </div>
-        </header>
+    <div className="p-5 md:p-8 max-w-6xl mx-auto space-y-8">
+      {/* ページヘッダー ＆ 店舗フィルター */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-default pb-5">
+        <div>
+          <span className="inline-block text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full mb-1">
+            商談デモ用ダッシュボード
+          </span>
+          <h1 className="text-2xl md:text-3xl font-bold text-text-primary display-heading">
+            MEO分析＆口コミ運用ダッシュボード
+          </h1>
+          <p className="text-text-secondary text-xs md:text-sm mt-1">
+            口コミ獲得の運用成果と、Googleマップ集客・競合比較・MEO診断結果を統合可視化します。
+          </p>
+        </div>
 
-        <section className="mt-6 grid gap-3 md:grid-cols-4">
-          <Kpi label="アンケート開始" value={totals.surveyStarts} />
-          <Kpi label="口コミ文生成" value={totals.generatedReviews} />
-          <Kpi label="Google遷移" value={totals.reviewClicks} />
-          <Kpi label="クーポン発行" value={totals.couponsIssued} />
-        </section>
-
-        <section className="mt-8 rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-5 py-4">
-            <h2 className="text-base font-bold">店舗一覧</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              業種を固定せず、店舗ごとにキーワードとアンケート項目を切り替えられる前提です。
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs text-slate-500">
-                <tr>
-                  <th className="px-5 py-3 font-bold">店舗</th>
-                  <th className="px-5 py-3 font-bold">業種</th>
-                  <th className="px-5 py-3 font-bold">プラン</th>
-                  <th className="px-5 py-3 font-bold">状態</th>
-                  <th className="px-5 py-3 font-bold">月間目標</th>
-                  <th className="px-5 py-3 font-bold">生成/遷移</th>
-                  <th className="px-5 py-3 font-bold">導線</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {stores.map((store) => {
-                  const item = metrics.find((metric) => metric.storeId === store.id) ?? {
-                    storeId: store.id,
-                    surveyStarts: 0,
-                    generatedReviews: 0,
-                    reviewClicks: 0,
-                    couponsIssued: 0,
-                    averageRating: 0,
-                  };
-                  return (
-                    <tr key={store.id}>
-                      <td className="px-5 py-4 font-bold text-slate-800">{store.name}</td>
-                      <td className="px-5 py-4 text-slate-600">{store.category}</td>
-                      <td className="px-5 py-4 text-slate-600">{planLabels[store.plan]}</td>
-                      <td className="px-5 py-4 text-slate-600">{statusLabels[store.status]}</td>
-                      <td className="px-5 py-4 text-slate-600">{store.monthlyGoal}件</td>
-                      <td className="px-5 py-4 text-slate-600">
-                        {item.generatedReviews} / {item.reviewClicks}
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex gap-3">
-                          <Link
-                            href={`/admin/stores/${store.id}`}
-                            className="text-sm font-bold text-slate-600 underline"
-                          >
-                            編集
-                          </Link>
-                          <Link
-                            href={`/survey/${store.id}`}
-                            className="text-sm font-bold text-brand hover:underline"
-                          >
-                            アンケート
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-bold">API連携前の準備状況</h2>
-            <div className="mt-4 space-y-3">
-              <Roadmap title="DB化" body="店舗、クーポン、イベント、口コミ生成履歴を置き換えやすい型に整理済み。" done />
-              <Roadmap title="クーポン発行" body="発行APIとアンケート画面の発行導線を追加済み。" done />
-              <Roadmap title="イベント計測" body="開始、生成、コピー、Google遷移、クーポン発行を記録するAPI入口を追加済み。" done />
-              <Roadmap title="外部API" body="Google Business Profile、順位計測、LINE通知は次フェーズでまとめて接続。" />
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-bold">有効クーポン</h2>
-            <div className="mt-4 space-y-3">
-              {coupons.map((coupon) => (
-                <div key={coupon.id} className="rounded-lg border border-slate-100 p-4">
-                  <p className="text-sm font-bold text-slate-800">{coupon.title}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                    {coupon.description}
-                  </p>
-                  <p className="mt-2 text-xs text-slate-400">
-                    発行済み {coupon.issuedCount}件 / 有効 {coupon.expiresInDays}日
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* 店舗切り替えタブ */}
+        <div className="flex bg-surface-secondary p-1 rounded-xl border border-border-subtle shrink-0">
+          <button
+            onClick={() => setSelectedStoreId("all")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
+              selectedStoreId === "all"
+                ? "bg-surface text-brand shadow-xs"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            2拠点合計
+          </button>
+          <button
+            onClick={() => setSelectedStoreId("classic")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
+              selectedStoreId === "classic"
+                ? "bg-surface text-brand shadow-xs"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            The蔵ssic
+          </button>
+          <button
+            onClick={() => setSelectedStoreId("ss-grand")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
+              selectedStoreId === "ss-grand"
+                ? "bg-surface text-brand shadow-xs"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            SS.GRAND
+          </button>
+        </div>
       </div>
-    </main>
-  );
-}
 
-function Kpi({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-bold text-slate-400">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-slate-900">{value.toLocaleString()}</p>
+      {/* ─────────────────────────────────────────────────────────────
+          1. 口コミ運用ファネル＆KPIサマリ（ポチコミの直接成果）
+      ───────────────────────────────────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-text-primary">
+              1. 口コミ獲得成果（ポチコミ運用ファネル）
+            </h2>
+            <p className="text-xs text-text-tertiary">
+              来店客のQR読み取りから、AI口コミ生成・Googleマップ投稿画面への遷移率
+            </p>
+          </div>
+          <span className="text-[11px] font-semibold text-text-quaternary bg-surface-secondary px-2 py-0.5 rounded">
+            リアルタイム計測中
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <KpiCard
+            label="アンケート開始数"
+            value="100件"
+            subtext="卓上QRコード読み取り"
+            badge="入口"
+          />
+          <KpiCard
+            label="口コミ文章作成数"
+            value="73件"
+            subtext="AIが3案を瞬時作成"
+            badge="作成率 73%"
+            highlight
+          />
+          <KpiCard
+            label="Googleマップ遷移数"
+            value="55件"
+            subtext="コピーして投稿画面へ"
+            badge="遷移率 55%"
+            highlight
+          />
+          <KpiCard
+            label="月間目標達成率"
+            value="100%"
+            subtext="目標 20件/月 を突破"
+            badge="達成"
+            isBrand
+          />
+        </div>
+
+        <div className="grid md:grid-cols-[1.2fr_0.8fr] gap-4">
+          <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-3">
+              アンケート完了・マップ遷移ファネル
+            </h3>
+            <FunnelChart starts={100} generated={73} clicks={55} />
+            <p className="text-[11px] text-text-tertiary mt-3">
+              ※アンケートを開始した来店客の半数以上（55%）がGoogleマップの口コミ投稿画面まで到達しています。
+            </p>
+          </div>
+
+          <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card flex flex-col justify-between">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-2">
+                運用ステータス
+              </h3>
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-secondary">
+                  <span className="text-xs font-medium text-text-secondary">The蔵ssic（インドア）</span>
+                  <span className="text-xs font-bold text-brand">運用中 (Active)</span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-secondary">
+                  <span className="text-xs font-medium text-text-secondary">SS.GRAND（スクール）</span>
+                  <span className="text-xs font-bold text-brand">運用中 (Active)</span>
+                </div>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-border-subtle mt-4 flex gap-2">
+              <Link
+                href="/admin/qr"
+                className="flex-1 py-2 px-3 rounded-xl bg-brand text-white text-xs font-bold text-center pressable shadow-xs"
+              >
+                QRコードを発行
+              </Link>
+              <Link
+                href="/admin/coupons"
+                className="flex-1 py-2 px-3 rounded-xl bg-surface border border-border-default text-text-primary text-xs font-bold text-center pressable hover:bg-surface-secondary shadow-xs"
+              >
+                お礼クーポン管理
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. Googleビジネスプロフィール集客パフォーマンス分析（新要件）
+      ───────────────────────────────────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-text-primary">
+                2. Googleマップ集客パフォーマンス分析
+              </h2>
+              <span className="text-[10px] font-bold text-brand bg-brand-light px-2 py-0.5 rounded-full">
+                連携機能デモ
+              </span>
+            </div>
+            <p className="text-xs text-text-tertiary">
+              Googleビジネスプロフィール公式データ連携（口コミ増加に伴う検索露出と来店アクションの連動）
+            </p>
+          </div>
+          <span className="text-[11px] text-text-tertiary">
+            ※受注後にGBP APIと完全自動連携
+          </span>
+        </div>
+
+        {/* GBP インサイトKPIカード */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
+            <p className="text-[11px] font-bold text-text-tertiary">月間マップ表示回数</p>
+            <p className="text-2xl font-bold text-text-primary mt-1">
+              {currentGbp.monthlyViews.toLocaleString()}
+              <span className="text-xs font-normal text-text-secondary ml-1">回</span>
+            </p>
+            <p className="text-[10px] text-brand font-semibold mt-1">間接検索 {currentGbp.discoverySearchRatio}%</p>
+          </div>
+
+          <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
+            <p className="text-[11px] font-bold text-text-tertiary">ルート検索（来店ナビ）</p>
+            <p className="text-2xl font-bold text-brand mt-1">
+              {currentGbp.actions.directionRequests}
+              <span className="text-xs font-normal text-text-secondary ml-1">回/月</span>
+            </p>
+            <p className="text-[10px] text-text-tertiary mt-1">最も来店確度の高い行動</p>
+          </div>
+
+          <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
+            <p className="text-[11px] font-bold text-text-tertiary">ウェブサイト誘導</p>
+            <p className="text-2xl font-bold text-text-primary mt-1">
+              {currentGbp.actions.websiteClicks}
+              <span className="text-xs font-normal text-text-secondary ml-1">回/月</span>
+            </p>
+            <p className="text-[10px] text-text-tertiary mt-1">公式サイト予約へ流入</p>
+          </div>
+
+          <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
+            <p className="text-[11px] font-bold text-text-tertiary">直接通話（電話予約）</p>
+            <p className="text-2xl font-bold text-text-primary mt-1">
+              {currentGbp.actions.phoneCalls}
+              <span className="text-xs font-normal text-text-secondary ml-1">回/月</span>
+            </p>
+            <p className="text-[10px] text-text-tertiary mt-1">新規体験の問い合わせ</p>
+          </div>
+        </div>
+
+        {/* 口コミ数とルート検索数の連動相関グラフ */}
+        <div className="bg-surface rounded-2xl p-6 border border-border-default shadow-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+            <div>
+              <h3 className="text-sm font-bold text-text-primary">
+                口コミ獲得ペースと「ルート検索数（来店）」の相関推移
+              </h3>
+              <p className="text-xs text-text-secondary mt-0.5">
+                口コミが蓄積されるほどGoogleアルゴリズムの評価が上がり、ルート検索（来店ナビ開始）が急増します。
+              </p>
+            </div>
+            <span className="text-[11px] font-semibold text-brand bg-brand-light px-2.5 py-1 rounded-full shrink-0">
+              来店アクション約5.4倍に成長
+            </span>
+          </div>
+          <GbpTrendChart trends={currentGbp.trends} />
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          3. MEO診断スコア比較（76_MEO診断くん 2026-07-27実データ）
+      ───────────────────────────────────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <div>
+            <h2 className="text-lg font-bold text-text-primary">
+              3. MEO診断スコア分析（2拠点並列比較）
+            </h2>
+            <p className="text-xs text-text-tertiary">
+              Googleビジネスプロフィール診断エンジン「76_meo-score」解析結果（診断日: {meoData.diagnosisDate}）
+            </p>
+          </div>
+          <div className="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
+            2店舗とも伸びしろ1位が「口コミ」で一致
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-5">
+          {/* The蔵ssic */}
+          <DiagnosisCard store={classicDiagnosis} />
+
+          {/* SS.GRAND */}
+          <DiagnosisCard store={ssGrandDiagnosis} />
+        </div>
+
+        {/* 2店舗一致のインサイト訴求 */}
+        <div className="p-4 rounded-2xl bg-brand-light border border-brand-border">
+          <div className="flex items-start gap-3">
+            <span className="w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+              !
+            </span>
+            <div className="text-xs leading-relaxed text-brand-text">
+              <p className="font-bold text-sm mb-0.5">
+                商談ポイント：2店舗共通で「口コミ」が最大の改善インパクト（+21.2点 / +29.5点）
+              </p>
+              The蔵ssic・SS.GRANDの2拠点とも、写真や基本情報は高評価である一方、「口コミ件数と具体性」がボトルネックとなって総合スコアがCランクに留まっています。
+              ポチコミを導入して月間20件ペースの高品質口コミを蓄積することで、両店舗とも一気に<strong>Aランク（75点以上・MEO上位表示圏）</strong>へ到達できます。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────────────
+          4. 宇都宮ゴルフスタジオ競合分析（2026-09-03実測・散布図）
+      ───────────────────────────────────────────────────────────── */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <div>
+            <h2 className="text-lg font-bold text-text-primary">
+              4. 宇都宮ゴルフ競合分析（評価 × 口コミ数 散布図）
+            </h2>
+            <p className="text-xs text-text-tertiary">
+              Googleマップ近隣競合実測データ（取得日: {meoData.competitorCheckDate}）
+            </p>
+          </div>
+          <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+            評価は競合最高・口コミ数だけが2桁不足
+          </span>
+        </div>
+
+        <div className="bg-surface rounded-2xl p-6 border border-border-default shadow-card">
+          <CompetitorScatterChart competitors={meoData.competitors} />
+
+          <div className="mt-6 pt-5 border-t border-border-subtle grid sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 rounded-xl bg-surface-secondary">
+              <p className="font-bold text-text-primary">自社2拠点の現状</p>
+              <p className="text-text-secondary mt-1">
+                The蔵ssic: <strong>★5.0 (7件)</strong><br />
+                SS.GRAND: <strong>★5.0 (1件)</strong><br />
+                満足度は最高ですが、件数が少なくマップで埋もれています。
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-surface-secondary">
+              <p className="font-bold text-text-primary">近隣上位競合</p>
+              <p className="text-text-secondary mt-1">
+                雀宮練習場: <strong>4.0 (68件)</strong><br />
+                Lounge Range: <strong>4.9 (57件)</strong><br />
+                SWING24/7: <strong>4.9 (56件)</strong>
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-brand-light border border-brand-border text-brand-text">
+              <p className="font-bold">ポチコミ導入後の目標</p>
+              <p className="mt-1">
+                月20件 × 3ヶ月で<strong>60件超</strong>に到達。評価★5.0を維持したまま宇都宮エリアNo.1のMEO上位表示を獲得します。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
-function Roadmap({
-  title,
-  body,
-  done,
+function KpiCard({
+  label,
+  value,
+  subtext,
+  badge,
+  highlight,
+  isBrand,
 }: {
-  title: string;
-  body: string;
-  done?: boolean;
+  label: string;
+  value: string;
+  subtext: string;
+  badge?: string;
+  highlight?: boolean;
+  isBrand?: boolean;
 }) {
   return (
-    <div className="flex gap-3 rounded-lg bg-slate-50 p-4">
-      <div
-        className={`mt-1.5 h-2.5 w-2.5 rounded-full shrink-0 ${
-          done ? "bg-brand" : "bg-border-default"
-        }`}
-      />
-      <div>
-        <p className="text-sm font-bold text-slate-800">{title}</p>
-        <p className="mt-1 text-xs leading-relaxed text-slate-500">{body}</p>
+    <div
+      className={`rounded-2xl p-4 border shadow-card transition-all ${
+        isBrand
+          ? "bg-brand text-white border-brand shadow-brand"
+          : highlight
+          ? "bg-surface border-brand/40"
+          : "bg-surface border-border-default"
+      }`}
+    >
+      <div className="flex justify-between items-start gap-1">
+        <p className={`text-[11px] font-bold ${isBrand ? "text-white/80" : "text-text-tertiary"}`}>
+          {label}
+        </p>
+        {badge && (
+          <span
+            className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+              isBrand
+                ? "bg-white/20 text-white"
+                : highlight
+                ? "bg-brand-light text-brand"
+                : "bg-surface-secondary text-text-secondary"
+            }`}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+      <p className={`text-2xl font-bold mt-2 tracking-tight ${isBrand ? "text-white" : "text-text-primary"}`}>
+        {value}
+      </p>
+      <p className={`text-[10px] mt-1 ${isBrand ? "text-white/75" : "text-text-secondary"}`}>
+        {subtext}
+      </p>
+    </div>
+  );
+}
+
+function DiagnosisCard({
+  store,
+}: {
+  store: (typeof meoData.stores)["classic"];
+}) {
+  return (
+    <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card">
+      <div className="flex items-start justify-between border-b border-border-subtle pb-3 mb-4">
+        <div>
+          <span className="text-[10px] font-bold text-text-tertiary uppercase">店舗診断</span>
+          <h3 className="text-base font-bold text-text-primary">{store.shortName}</h3>
+        </div>
+        <div className="text-right">
+          <span className="text-2xl font-bold text-brand">{store.totalScore}</span>
+          <span className="text-xs text-text-tertiary"> / 100点</span>
+          <span className="ml-2 text-xs font-bold bg-surface-secondary px-2 py-0.5 rounded text-text-secondary">
+            {store.rank}ランク
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2.5 mb-4">
+        {store.breakdown.map((item, idx) => {
+          const pct = Math.round((item.score / item.max) * 100);
+          const isReview = item.category === "口コミ";
+          return (
+            <div key={idx} className="text-xs">
+              <div className="flex justify-between font-semibold mb-1">
+                <span className={isReview ? "text-brand font-bold" : "text-text-primary"}>
+                  {item.category} {isReview && "(伸びしろ最大)"}
+                </span>
+                <span className={isReview ? "text-brand font-bold" : "text-text-secondary"}>
+                  {item.score} / {item.max}点 ({item.note})
+                </span>
+              </div>
+              <div className="h-2 bg-surface-secondary rounded-full overflow-hidden border border-border-subtle">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    isReview ? "bg-brand" : pct > 60 ? "bg-text-secondary" : "bg-text-quaternary"
+                  }`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="p-3 rounded-xl bg-surface-secondary text-xs">
+        <p className="font-bold text-text-primary mb-1">最優先の改善インパクト</p>
+        <p className="text-brand font-bold">
+          1位: {store.improvements[0].category}（+{store.improvements[0].potential}点の伸びしろ）
+        </p>
+        <p className="text-text-secondary text-[11px] mt-0.5">
+          {store.improvements[0].reason}
+        </p>
       </div>
     </div>
   );

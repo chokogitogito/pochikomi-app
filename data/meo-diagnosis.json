@@ -1,0 +1,263 @@
+{
+  "diagnosisDate": "2026-07-27",
+  "competitorCheckDate": "2026-09-03",
+  "stores": {
+    "classic": {
+      "id": "classic",
+      "name": "ゴルフコンディショニングスタジオ宇都宮 The蔵ssic",
+      "shortName": "The蔵ssic",
+      "totalScore": 47.2,
+      "maxScore": 100,
+      "rank": "C",
+      "breakdown": [
+        {
+          "category": "基礎整合性",
+          "score": 20,
+          "max": 20,
+          "note": "不足なし"
+        },
+        {
+          "category": "鮮度・更新",
+          "score": 0,
+          "max": 15,
+          "note": "最終投稿 未使用日前"
+        },
+        {
+          "category": "口コミ",
+          "score": 13.8,
+          "max": 35,
+          "note": "件数7件 / 平均5.0 / 返信0%"
+        },
+        {
+          "category": "視覚コンテンツ",
+          "score": 12,
+          "max": 15,
+          "note": "写真20枚以上 / 動画あり"
+        },
+        {
+          "category": "AI検索文脈",
+          "score": 1.5,
+          "max": 15,
+          "note": "説明文が空で差別化要因が不足"
+        }
+      ],
+      "improvements": [
+        {
+          "rank": 1,
+          "category": "口コミ",
+          "potential": 21.2,
+          "reason": "口コミ獲得導線の整備と全件返信で最大+21.2点の改善余地"
+        },
+        {
+          "rank": 2,
+          "category": "鮮度・更新",
+          "potential": 15,
+          "reason": "週1回以上の投稿・写真更新でスコア回復"
+        },
+        {
+          "rank": 3,
+          "category": "AI検索文脈",
+          "potential": 13.5,
+          "reason": "ビジネス説明文・強みの言語化でAI推薦を獲得"
+        }
+      ],
+      "gbpPerformance": {
+        "monthlyViews": 7600,
+        "searchViews": 2420,
+        "mapsViews": 5180,
+        "directSearchRatio": 28,
+        "discoverySearchRatio": 72,
+        "actions": {
+          "directionRequests": 184,
+          "websiteClicks": 96,
+          "phoneCalls": 38
+        },
+        "trends": [
+          {
+            "month": "4月",
+            "reviews": 2,
+            "views": 2100,
+            "directions": 34
+          },
+          {
+            "month": "5月",
+            "reviews": 3,
+            "views": 2800,
+            "directions": 52
+          },
+          {
+            "month": "6月",
+            "reviews": 5,
+            "views": 4100,
+            "directions": 88
+          },
+          {
+            "month": "7月",
+            "reviews": 8,
+            "views": 5300,
+            "directions": 120
+          },
+          {
+            "month": "8月",
+            "reviews": 14,
+            "views": 6800,
+            "directions": 158
+          },
+          {
+            "month": "9月(予測)",
+            "reviews": 20,
+            "views": 7600,
+            "directions": 184
+          }
+        ]
+      }
+    },
+    "ss-grand": {
+      "id": "ss-grand",
+      "name": "SS.GRAND（エスエスグランド スクールオブゴルフ）",
+      "shortName": "SS.GRAND",
+      "totalScore": 32.9,
+      "maxScore": 100,
+      "rank": "C",
+      "breakdown": [
+        {
+          "category": "基礎整合性",
+          "score": 15,
+          "max": 20,
+          "note": "未整備: 説明文の有無"
+        },
+        {
+          "category": "鮮度・更新",
+          "score": 0,
+          "max": 15,
+          "note": "最終投稿 未使用日前"
+        },
+        {
+          "category": "口コミ",
+          "score": 5.5,
+          "max": 35,
+          "note": "件数1件 / 平均5.0 / 返信0%"
+        },
+        {
+          "category": "視覚コンテンツ",
+          "score": 12,
+          "max": 15,
+          "note": "写真20枚以上 / 動画あり"
+        },
+        {
+          "category": "AI検索文脈",
+          "score": 0.4,
+          "max": 15,
+          "note": "説明文がなくAI推薦が困難"
+        }
+      ],
+      "improvements": [
+        {
+          "rank": 1,
+          "category": "口コミ",
+          "potential": 29.5,
+          "reason": "口コミ1件のみのため、口コミ獲得で最大+29.5点（全項目中最大）の伸びしろ"
+        },
+        {
+          "rank": 2,
+          "category": "鮮度・更新",
+          "potential": 15,
+          "reason": "筑波ジャンボゴルフセンター内の最新レッスンの発信"
+        },
+        {
+          "rank": 3,
+          "category": "AI検索文脈",
+          "potential": 14.6,
+          "reason": "ジュニアスクール・打席練習の強みを説明文に反映"
+        }
+      ],
+      "gbpPerformance": {
+        "monthlyViews": 4200,
+        "searchViews": 1350,
+        "mapsViews": 2850,
+        "directSearchRatio": 18,
+        "discoverySearchRatio": 82,
+        "actions": {
+          "directionRequests": 112,
+          "websiteClicks": 64,
+          "phoneCalls": 24
+        },
+        "trends": [
+          {
+            "month": "4月",
+            "reviews": 0,
+            "views": 1200,
+            "directions": 20
+          },
+          {
+            "month": "5月",
+            "reviews": 1,
+            "views": 1600,
+            "directions": 31
+          },
+          {
+            "month": "6月",
+            "reviews": 1,
+            "views": 2200,
+            "directions": 48
+          },
+          {
+            "month": "7月",
+            "reviews": 4,
+            "views": 3100,
+            "directions": 72
+          },
+          {
+            "month": "8月",
+            "reviews": 9,
+            "views": 3800,
+            "directions": 95
+          },
+          {
+            "month": "9月(予測)",
+            "reviews": 16,
+            "views": 4200,
+            "directions": 112
+          }
+        ]
+      }
+    }
+  },
+  "competitors": [
+    {
+      "name": "The蔵ssic（自社）",
+      "rating": 5,
+      "reviews": 7,
+      "isOwn": true,
+      "category": "インドアスタジオ"
+    },
+    {
+      "name": "SS.GRAND（自社）",
+      "rating": 5,
+      "reviews": 1,
+      "isOwn": true,
+      "category": "スクール・練習場"
+    },
+    {
+      "name": "Lounge Range 宇都宮",
+      "rating": 4.9,
+      "reviews": 57,
+      "isOwn": false,
+      "category": "インドアゴルフ"
+    },
+    {
+      "name": "SWING24/7 宇都宮店",
+      "rating": 4.9,
+      "reviews": 56,
+      "isOwn": false,
+      "category": "インドアゴルフ"
+    },
+    {
+      "name": "雀宮ゴルフ練習場",
+      "rating": 4,
+      "reviews": 68,
+      "isOwn": false,
+      "category": "屋外練習場"
+    }
+  ]
+}

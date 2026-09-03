@@ -148,11 +148,11 @@
   "metrics": [
     {
       "storeId": "classic",
-      "surveyStarts": 99,
-      "generatedReviews": 73,
+      "surveyStarts": 100,
+      "generatedReviews": 74,
       "reviewClicks": 55,
       "couponsIssued": 13,
-      "averageRating": 4.2
+      "averageRating": 4.1
     },
     {
       "storeId": "ss-grand",
@@ -231,6 +231,32 @@
         "menu": "レンジレッスン（グループ）"
       },
       "receivedAt": "2026-09-03T00:24:47.945Z"
+    },
+    {
+      "id": "evt-mtkshz1w-qf99e0",
+      "storeId": "classic",
+      "type": "survey_started",
+      "payload": {
+        "source": "Google検索"
+      },
+      "receivedAt": "2026-09-03T00:31:29.204Z"
+    },
+    {
+      "id": "evt-mtksikg2-wlo2lo",
+      "storeId": "classic",
+      "type": "review_generated",
+      "payload": {
+        "rating": 4,
+        "selectedPoints": [
+          "スイングの課題を的確に指摘してもらえた",
+          "体の使い方から教えてもらえた",
+          "初心者にも分かりやすい説明だった",
+          "予約が取りやすく通いやすい",
+          "コーチ・スタッフの雰囲気が良い"
+        ],
+        "menu": "体験レッスン"
+      },
+      "receivedAt": "2026-09-03T00:31:56.930Z"
     }
   ]
 }
