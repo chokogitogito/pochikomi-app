@@ -15,52 +15,56 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
   const point2 = selectedPoints[1] ?? "";
   const menuText = menu && menu !== "その他" ? menu : "";
   const sourceText = source && source !== "その他" ? source : "";
-  const commentText = comment.trim()
+  const commentClean = comment.trim()
     ? (/[。！？!?]$/.test(comment.trim()) ? comment.trim() : `${comment.trim()}。`)
     : "";
-
-  const sourceLead = (() => {
-    if (!sourceText) return `${storeName}に行ってきました。`;
-    if (sourceText.endsWith("て") || sourceText.endsWith("で")) {
-      return `${sourceText}、${storeName}に行ってきました。`;
-    }
-    return `${sourceText}で見つけて${storeName}に行ってきました。`;
-  })();
 
   if (isPositive) {
     return [
       {
         tone: "friendly",
-        text: join([
-          sourceLead,
-          menuText ? `${menuText}をお願いしました。` : "",
-          point1 ? `${point1}のがうれしかったです。` : "",
-          point2 ? `${point2}のも良かったです。` : "",
-          commentText,
-          area ? `${area}で通えるところを探している人にはおすすめだと思います。` : "",
-        ]),
+        text: [
+          sourceText ? `${sourceText}で見つけて${storeName}に行ってきました！⛳️` : `${storeName}に行ってきました！⛳️`,
+          menuText ? `今回は${menuText}をお願いしました。` : "",
+          "",
+          point1 ? `${point1}のが本当に良かったです✨` : "",
+          point2 ? `${point2}のも感動でした！` : "",
+          commentClean ? commentClean.replace(/。$/, "！") : "",
+          "",
+          area ? `${area}で良いスタジオを探している人にはすごくおすすめです😊` : "通うのが楽しみになりました😊",
+        ]
+          .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
+          .join("\n"),
       },
       {
         tone: "standard",
-        text: join([
-          `${storeName}を利用しました。`,
-          menuText ? `今回は${menuText}を受けました。` : "",
+        text: [
+          sourceText ? `${sourceText}をきっかけに${storeName}を利用しました。` : `${storeName}を利用しました。`,
+          menuText ? `今回は${menuText}を受けています。` : "",
+          "",
           point1 ? `${point1}点が特に印象に残っています。` : "",
-          point2 ? `${point2}ところも良かったです。` : "",
-          commentText,
-          "また利用したいと思います。",
-        ]),
+          point2 ? `${point2}ところも分かりやすくて良かったです！` : "",
+          commentClean,
+          "",
+          area ? `${area}でゴルフレッスンを検討中の方にぜひおすすめしたいです！` : "今後も定期的に通いたいと思います！",
+        ]
+          .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
+          .join("\n"),
       },
       {
         tone: "polite",
-        text: join([
-          `${storeName}を利用させていただきました。`,
-          menuText ? `${menuText}をお願いしました。` : "",
-          point1 ? `${point1}点がとてもありがたかったです。` : "",
-          point2 ? `また、${point2}ところにも安心感がありました。` : "",
-          commentText,
-          "次回もぜひお願いしたいと思っております。",
-        ]),
+        text: [
+          sourceText ? `${sourceText}にて拝見し、${storeName}を利用させていただきました。` : `${storeName}を利用させていただきました。`,
+          menuText ? `今回は${menuText}をお願いいたしました。` : "",
+          "",
+          point1 ? `${point1}点が大変ありがたく、参考になりました。` : "",
+          point2 ? `${point2}ところにも深い安心感がございます。` : "",
+          commentClean,
+          "",
+          "今後とも継続してお願いしたいと考えております。",
+        ]
+          .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
+          .join("\n"),
       },
     ];
   }
@@ -68,39 +72,49 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
   return [
     {
       tone: "friendly",
-      text: join([
+      text: [
         `${storeName}を利用しました。`,
         menuText ? `${menuText}をお願いしました。` : "",
+        "",
         point1 ? `${point1}のが少し気になりました。` : "",
         point2 ? `${point2}のも改善されるとうれしいです。` : "",
-        commentText,
-        "良かったところもあったので、また様子を見て伺いたいです。",
-      ]),
+        commentClean,
+        "",
+        "設備や雰囲気は良かったので、また様子を見て伺いたいです！",
+      ]
+        .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
+        .join("\n"),
     },
     {
       tone: "standard",
-      text: join([
+      text: [
         `${storeName}を利用しました。`,
-        "全体として悪い印象ではありませんでした。",
-        point1 ? `ただ、${point1}点が気になりました。` : "",
+        menuText ? `今回は${menuText}を受けました。` : "",
+        "",
+        "全体として悪い印象ではありませんでしたが、",
+        point1 ? `${point1}点が少し気になりました。` : "",
         point2 ? `また、${point2}点も改善されるとより利用しやすいと感じます。` : "",
-        commentText,
-        "今後さらに良くなることを期待しています。",
-      ]),
+        commentClean,
+        "",
+        "今後のさらなるサービス向上に期待しています。",
+      ]
+        .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
+        .join("\n"),
     },
     {
       tone: "polite",
-      text: join([
+      text: [
         `${storeName}を利用させていただきました。`,
-        point1 ? `${point1}点について、少し気になりました。` : "",
-        point2 ? `${point2}点も併せてご検討いただけますと幸いです。` : "",
-        commentText,
-        "良かった点もございましたので、今後に期待しております。",
-      ]),
+        menuText ? `今回は${menuText}をお願いいたしました。` : "",
+        "",
+        point1 ? `${point1}点につきまして、少々気になりました。` : "",
+        point2 ? `${point2}点も併せて改善をご検討いただけますと幸甚に存じます。` : "",
+        commentClean,
+        "",
+        "指導内容や施設など良い点もございましたので、今後に期待しております。",
+      ]
+        .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
+        .join("\n"),
     },
   ];
-}
-
-function join(parts: string[]): string {
-  return parts.filter((part) => part && part.trim()).join("");
 }

@@ -6,8 +6,8 @@ import Image from "next/image";
 import type { Coupon, ReviewDraft, ReviewTone, Store } from "@/lib/types";
 
 // アンケートのステップ
-// source → rating → points（評価に応じて内容が変わる）→ detail → generating → result
-type Step = "source" | "rating" | "points" | "detail" | "generating" | "result";
+// source (きっかけ) → menu (メニュー) → points (良かった点) → rating (満足度＆ひとこと) → generating → result
+type Step = "source" | "menu" | "points" | "rating" | "generating" | "result";
 
 type IssuedCoupon = {
   title: string;
@@ -87,8 +87,7 @@ export default function SurveyPage() {
 
   const storeName = store.shortName || store.name;
 
-  // 高評価かどうか。評価によって設問文と生成トーンだけを変え、投稿導線は全員同じにする。
-  const isPositive = rating >= 4;
+
 
   const logEvent = (type: string, payload?: Record<string, unknown>) => {
     fetch("/api/events", {
@@ -98,17 +97,9 @@ export default function SurveyPage() {
     }).catch(() => undefined);
   };
 
-  const pointsOptions = isPositive
-    ? store.surveyOptions.goodPoints
-    : store.surveyOptions.badPoints;
-
-  const pointsQuestion = isPositive
-    ? "特に良かったところを教えてください"
-    : "気になった点を教えてください";
-
-  const pointsSubtext = isPositive
-    ? "当てはまるものをすべて選んでください（複数可）。"
-    : "率直なご意見をお聞かせください（複数可）。";
+  const pointsOptions = store.surveyOptions.goodPoints;
+  const pointsQuestion = "特に良かったところ・印象に残った点を教えてください";
+  const pointsSubtext = "当てはまるものをすべて選んでください（複数可）。";
 
   const togglePoint = (point: string) => {
     setSelectedPoints((prev) =>
@@ -116,10 +107,8 @@ export default function SurveyPage() {
     );
   };
 
-  // 評価が変わったとき、良かった点／気になった点の選択をリセットする
   const handleRatingChange = (val: number) => {
     setRating(val);
-    setSelectedPoints([]);
   };
 
   const requestDrafts = async () => {
@@ -227,7 +216,7 @@ export default function SurveyPage() {
                   onClick={() => {
                     setSource(s);
                     logEvent("survey_started", { source: s });
-                    setStep("rating");
+                    setStep("menu");
                   }}
                 />
               ))}
@@ -235,49 +224,34 @@ export default function SurveyPage() {
           </div>
         )}
 
-        {/* ステップ2：満足度 */}
-        {step === "rating" && (
+        {/* ステップ2：利用メニュー */}
+        {step === "menu" && (
           <div>
             <StepIndicator current={2} total={TOTAL_STEPS} />
             <h2 className="text-xl font-bold text-gray-800 mt-4 mb-2">
-              全体の満足度は？
+              今回ご利用いただいた内容は？
             </h2>
-            <p className="text-gray-500 text-sm mb-8">
-              星の数で教えてください。
+            <p className="text-gray-500 text-sm mb-6">
+              当てはまるものを1つ選んでください。
             </p>
-            <div className="flex justify-center gap-3 mb-4">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => handleRatingChange(star)}
-                  className="text-5xl transition-transform hover:scale-110 active:scale-95"
-                  aria-label={`星${star}`}
-                >
-                  <span className={star <= rating ? "text-yellow-400" : "text-gray-200"}>
-                    ★
-                  </span>
-                </button>
+
+            <div className="space-y-3">
+              {store.surveyOptions.menus.map((item) => (
+                <ChoiceButton
+                  key={item}
+                  label={item}
+                  selected={menu === item}
+                  onClick={() => {
+                    setMenu(item);
+                    setStep("points");
+                  }}
+                />
               ))}
             </div>
-
-            <p className="text-center text-sm font-medium mb-8 h-5">
-              {rating === 5 && <span className="text-green-500">とても満足！</span>}
-              {rating === 4 && <span className="text-green-400">満足</span>}
-              {rating === 3 && <span className="text-gray-400">普通</span>}
-              {rating === 2 && <span className="text-gray-400">やや不満</span>}
-              {rating === 1 && <span className="text-gray-400">不満</span>}
-            </p>
-
-            <button
-              onClick={() => setStep("points")}
-              className="w-full py-4 rounded-2xl bg-green-500 text-white font-bold text-lg hover:bg-green-600 transition-colors shadow-sm"
-            >
-              次へ
-            </button>
           </div>
         )}
 
-        {/* ステップ3：良かった点 or 気になった点 */}
+        {/* ステップ3：良かった点・印象に残った点 */}
         {step === "points" && (
           <div>
             <StepIndicator current={3} total={TOTAL_STEPS} />
@@ -299,7 +273,7 @@ export default function SurveyPage() {
             </div>
 
             <button
-              onClick={() => setStep("detail")}
+              onClick={() => setStep("rating")}
               disabled={selectedPoints.length === 0}
               className="mt-6 w-full py-4 rounded-2xl font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-white bg-green-500 hover:bg-green-600"
             >
@@ -308,34 +282,45 @@ export default function SurveyPage() {
           </div>
         )}
 
-        {/* ステップ4：メニューと自由コメント */}
-        {step === "detail" && (
+        {/* ステップ4：星評価とひとこと */}
+        {step === "rating" && (
           <div>
             <StepIndicator current={4} total={TOTAL_STEPS} />
             <h2 className="text-xl font-bold text-gray-800 mt-4 mb-2">
-              今回ご利用いただいた内容は？
+              全体の満足度は？
             </h2>
             <p className="text-gray-500 text-sm mb-6">
-              当てはまるものを1つ選んでください。
+              星の数で教えてください。
             </p>
-
-            <div className="space-y-3">
-              {store.surveyOptions.menus.map((item) => (
-                <ChoiceButton
-                  key={item}
-                  label={item}
-                  selected={menu === item}
-                  onClick={() => setMenu(item)}
-                />
+            <div className="flex justify-center gap-3 mb-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => handleRatingChange(star)}
+                  className="text-5xl transition-transform hover:scale-110 active:scale-95"
+                  aria-label={`星${star}`}
+                >
+                  <span className={star <= rating ? "text-yellow-400" : "text-gray-200"}>
+                    ★
+                  </span>
+                </button>
               ))}
             </div>
 
-            <div className="mt-8">
+            <p className="text-center text-sm font-medium mb-6 h-5">
+              {rating === 5 && <span className="text-green-500">とても満足！</span>}
+              {rating === 4 && <span className="text-green-400">満足</span>}
+              {rating === 3 && <span className="text-gray-400">普通</span>}
+              {rating === 2 && <span className="text-gray-400">やや不満</span>}
+              {rating === 1 && <span className="text-gray-400">不満</span>}
+            </p>
+
+            <div className="mt-4">
               <label htmlFor="comment" className="block text-base font-bold text-gray-800">
                 ひとこと（任意）
               </label>
               <p className="text-gray-500 text-sm mt-1 mb-3">
-                印象に残ったことがあれば、短くて大丈夫です。
+                印象に残ったことや感想があれば教えてください。
               </p>
               <textarea
                 id="comment"
@@ -350,8 +335,7 @@ export default function SurveyPage() {
 
             <button
               onClick={generateReview}
-              disabled={!menu}
-              className="mt-6 w-full py-4 rounded-2xl font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-white bg-green-500 hover:bg-green-600"
+              className="mt-6 w-full py-4 rounded-2xl font-bold text-lg transition-colors shadow-sm text-white bg-green-500 hover:bg-green-600"
             >
               口コミ文章を作成する
             </button>
@@ -405,8 +389,8 @@ export default function SurveyPage() {
                 onChange={(e) =>
                   setTexts((prev) => ({ ...prev, [activeTone]: e.target.value }))
                 }
-                rows={8}
-                className="w-full resize-none bg-transparent text-base leading-relaxed text-gray-700 focus:outline-none"
+                rows={10}
+                className="w-full resize-none bg-transparent text-base leading-relaxed text-gray-700 focus:outline-none min-h-[200px]"
                 aria-label="口コミ文章"
               />
               <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-2">
