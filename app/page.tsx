@@ -32,13 +32,13 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-2">
               <Link
-                href="/survey/classic"
+                href="/survey/golf-a"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-brand shadow-sm pressable hover:bg-surface-secondary"
               >
                 ゴルフ場A アンケートを開く
               </Link>
               <Link
-                href="/survey/ss-grand"
+                href="/survey/golf-b"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-text-secondary shadow-sm pressable hover:bg-surface-secondary"
               >
                 ゴルフ場B アンケートを開く

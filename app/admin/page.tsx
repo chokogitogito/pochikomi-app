@@ -6,15 +6,15 @@ import meoData from "@/data/meo-diagnosis.json";
 import { CompetitorScatterChart, GbpTrendChart, FunnelChart } from "@/components/admin/MeoCharts";
 
 export default function AdminDashboardPage() {
-  const [selectedStoreId, setSelectedStoreId] = useState<"all" | "classic" | "ss-grand">("all");
+  const [selectedStoreId, setSelectedStoreId] = useState<"all" | "golf-a" | "golf-b">("all");
 
-  const classicDiagnosis = meoData.stores.classic;
-  const ssGrandDiagnosis = meoData.stores["ss-grand"];
+  const golfADiagnosis = meoData.stores["golf-a"];
+  const golfBDiagnosis = meoData.stores["golf-b"];
 
   const currentGbp =
-    selectedStoreId === "ss-grand"
-      ? ssGrandDiagnosis.gbpPerformance
-      : classicDiagnosis.gbpPerformance;
+    selectedStoreId === "golf-b"
+      ? golfBDiagnosis.gbpPerformance
+      : golfADiagnosis.gbpPerformance;
 
   return (
     <div className="p-5 md:p-8 max-w-6xl mx-auto space-y-8">
@@ -45,9 +45,9 @@ export default function AdminDashboardPage() {
             2拠点合計
           </button>
           <button
-            onClick={() => setSelectedStoreId("classic")}
+            onClick={() => setSelectedStoreId("golf-a")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
-              selectedStoreId === "classic"
+              selectedStoreId === "golf-a"
                 ? "bg-surface text-brand shadow-xs"
                 : "text-text-secondary hover:text-text-primary"
             }`}
@@ -55,9 +55,9 @@ export default function AdminDashboardPage() {
             ゴルフ場A
           </button>
           <button
-            onClick={() => setSelectedStoreId("ss-grand")}
+            onClick={() => setSelectedStoreId("golf-b")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
-              selectedStoreId === "ss-grand"
+              selectedStoreId === "golf-b"
                 ? "bg-surface text-brand shadow-xs"
                 : "text-text-secondary hover:text-text-primary"
             }`}
@@ -261,10 +261,10 @@ export default function AdminDashboardPage() {
 
         <div className="grid md:grid-cols-2 gap-5">
           {/* ゴルフ場A */}
-          <DiagnosisCard store={classicDiagnosis} />
+          <DiagnosisCard store={golfADiagnosis} />
 
           {/* ゴルフ場B */}
-          <DiagnosisCard store={ssGrandDiagnosis} />
+          <DiagnosisCard store={golfBDiagnosis} />
         </div>
 
         {/* 2店舗一致のインサイト訴求 */}
@@ -391,7 +391,7 @@ function KpiCard({
 function DiagnosisCard({
   store,
 }: {
-  store: (typeof meoData.stores)["classic"];
+  store: (typeof meoData.stores)["golf-a"];
 }) {
   return (
     <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card">

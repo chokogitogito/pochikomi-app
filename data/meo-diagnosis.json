@@ -2,8 +2,8 @@
   "diagnosisDate": "2026-07-27",
   "competitorCheckDate": "2026-09-03",
   "stores": {
-    "classic": {
-      "id": "classic",
+    "golf-a": {
+      "id": "golf-a",
       "name": "ゴルフ場A（チャンピオンコース）",
       "shortName": "ゴルフ場A",
       "totalScore": 47.2,
@@ -112,8 +112,8 @@
         ]
       }
     },
-    "ss-grand": {
-      "id": "ss-grand",
+    "golf-b": {
+      "id": "golf-b",
       "name": "ゴルフ場B（リゾートコース）",
       "shortName": "ゴルフ場B",
       "totalScore": 41.5,

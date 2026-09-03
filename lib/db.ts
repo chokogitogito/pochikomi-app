@@ -48,7 +48,10 @@ export async function getStores(): Promise<Store[]> {
 
 export async function getStore(storeId: string): Promise<Store | null> {
   const db = await readDb();
-  return db.stores.find((store) => store.id === storeId) ?? null;
+  // 旧IDからの後方互換マッピング
+  const normalizedId =
+    storeId === "classic" ? "golf-a" : storeId === "ss-grand" ? "golf-b" : storeId;
+  return db.stores.find((store) => store.id === normalizedId) ?? null;
 }
 
 export async function saveStore(input: Store): Promise<Store> {

@@ -1,7 +1,7 @@
 {
   "stores": [
     {
-      "id": "classic",
+      "id": "golf-a",
       "name": "ゴルフ場A（チャンピオンコース）",
       "shortName": "ゴルフ場A",
       "category": "ゴルフ場・ゴルフコース",
@@ -62,7 +62,7 @@
       }
     },
     {
-      "id": "ss-grand",
+      "id": "golf-b",
       "name": "ゴルフ場B（リゾートコース）",
       "shortName": "ゴルフ場B",
       "category": "ゴルフ場・リゾートゴルフ",
@@ -182,8 +182,8 @@
   ],
   "coupons": [
     {
-      "id": "classic-thanks",
-      "storeId": "classic",
+      "id": "golf-a-thanks",
+      "storeId": "golf-a",
       "title": "ゴルフ場A アンケートご協力のお礼",
       "description": "次回ラウンド時、またはプロショップ・レストランでご利用いただける特典です。",
       "expiresInDays": 30,
@@ -191,8 +191,8 @@
       "active": true
     },
     {
-      "id": "ssgrand-thanks",
-      "storeId": "ss-grand",
+      "id": "golf-b-thanks",
+      "storeId": "golf-b",
       "title": "ゴルフ場B アンケートご協力のお礼",
       "description": "次回ラウンド時、またはプロショップ・レストランでご利用いただける特典です。",
       "expiresInDays": 30,
@@ -211,7 +211,7 @@
   ],
   "metrics": [
     {
-      "storeId": "classic",
+      "storeId": "golf-a",
       "surveyStarts": 100,
       "generatedReviews": 74,
       "reviewClicks": 55,
@@ -219,7 +219,7 @@
       "averageRating": 4.1
     },
     {
-      "storeId": "ss-grand",
+      "storeId": "golf-b",
       "surveyStarts": 45,
       "generatedReviews": 32,
       "reviewClicks": 24,
@@ -238,7 +238,7 @@
   "events": [
     {
       "id": "evt-001",
-      "storeId": "classic",
+      "storeId": "golf-a",
       "type": "survey_started",
       "payload": {
         "source": "Google検索"
