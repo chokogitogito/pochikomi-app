@@ -52,7 +52,7 @@ export default function AdminDashboardPage() {
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >
-            The蔵ssic
+            ゴルフ場A
           </button>
           <button
             onClick={() => setSelectedStoreId("ss-grand")}
@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
                 : "text-text-secondary hover:text-text-primary"
             }`}
           >
-            SS.GRAND
+            ゴルフ場B
           </button>
         </div>
       </div>
@@ -133,11 +133,11 @@ export default function AdminDashboardPage() {
               </h3>
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-secondary">
-                  <span className="text-xs font-medium text-text-secondary">The蔵ssic（インドア）</span>
+                  <span className="text-xs font-medium text-text-secondary">ゴルフ場A（本コース）</span>
                   <span className="text-xs font-bold text-brand">運用中 (Active)</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-secondary">
-                  <span className="text-xs font-medium text-text-secondary">SS.GRAND（スクール）</span>
+                  <span className="text-xs font-medium text-text-secondary">ゴルフ場B（リゾートコース）</span>
                   <span className="text-xs font-bold text-brand">運用中 (Active)</span>
                 </div>
               </div>
@@ -260,10 +260,10 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-5">
-          {/* The蔵ssic */}
+          {/* ゴルフ場A */}
           <DiagnosisCard store={classicDiagnosis} />
 
-          {/* SS.GRAND */}
+          {/* ゴルフ場B */}
           <DiagnosisCard store={ssGrandDiagnosis} />
         </div>
 
@@ -275,23 +275,23 @@ export default function AdminDashboardPage() {
             </span>
             <div className="text-xs leading-relaxed text-brand-text">
               <p className="font-bold text-sm mb-0.5">
-                商談ポイント：2店舗共通で「口コミ」が最大の改善インパクト（+21.2点 / +29.5点）
+                商談ポイント：自社2拠点共通で「口コミ」が最大の改善インパクト（+21.2点 / +29.5点）
               </p>
-              The蔵ssic・SS.GRANDの2拠点とも、写真や基本情報は高評価である一方、「口コミ件数と具体性」がボトルネックとなって総合スコアがCランクに留まっています。
-              ポチコミを導入して月間20件ペースの高品質口コミを蓄積することで、両店舗とも一気に<strong>Aランク（75点以上・MEO上位表示圏）</strong>へ到達できます。
+              ゴルフ場A・ゴルフ場Bの2拠点とも、写真や基本情報は高評価である一方、「口コミ件数と具体性」がボトルネックとなって総合スコアがCランクに留まっています。
+              ポチコミを導入して月間20件ペースの高品質口コミを蓄積することで、両拠点とも一気に<strong>Aランク（75点以上・MEO上位表示圏）</strong>へ到達できます。
             </div>
           </div>
         </div>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          4. 宇都宮ゴルフスタジオ競合分析（2026-09-03実測・散布図）
+          4. 近隣ゴルフ場競合分析（評価 × 口コミ数 散布図）
       ───────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
             <h2 className="text-lg font-bold text-text-primary">
-              4. 宇都宮ゴルフ競合分析（評価 × 口コミ数 散布図）
+              4. 近隣ゴルフ場競合分析（評価 × 口コミ数 散布図）
             </h2>
             <p className="text-xs text-text-tertiary">
               Googleマップ近隣競合実測データ（取得日: {meoData.competitorCheckDate}）
@@ -309,23 +309,23 @@ export default function AdminDashboardPage() {
             <div className="p-3 rounded-xl bg-surface-secondary">
               <p className="font-bold text-text-primary">自社2拠点の現状</p>
               <p className="text-text-secondary mt-1">
-                The蔵ssic: <strong>★5.0 (7件)</strong><br />
-                SS.GRAND: <strong>★5.0 (1件)</strong><br />
+                ゴルフ場A: <strong>★5.0 (7件)</strong><br />
+                ゴルフ場B: <strong>★5.0 (1件)</strong><br />
                 満足度は最高ですが、件数が少なくマップで埋もれています。
               </p>
             </div>
             <div className="p-3 rounded-xl bg-surface-secondary">
               <p className="font-bold text-text-primary">近隣上位競合</p>
               <p className="text-text-secondary mt-1">
-                雀宮練習場: <strong>4.0 (68件)</strong><br />
-                Lounge Range: <strong>4.9 (57件)</strong><br />
-                SWING24/7: <strong>4.9 (56件)</strong>
+                競合Cゴルフ場: <strong>4.0 (68件)</strong><br />
+                競合Aゴルフ倶楽部: <strong>4.9 (57件)</strong><br />
+                競合Bカントリークラブ: <strong>4.9 (56件)</strong>
               </p>
             </div>
             <div className="p-3 rounded-xl bg-brand-light border border-brand-border text-brand-text">
               <p className="font-bold">ポチコミ導入後の目標</p>
               <p className="mt-1">
-                月20件 × 3ヶ月で<strong>60件超</strong>に到達。評価★5.0を維持したまま宇都宮エリアNo.1のMEO上位表示を獲得します。
+                月20件 × 3ヶ月で<strong>60件超</strong>に到達。高評価を維持したまま地域No.1のMEO上位表示を獲得します。
               </p>
             </div>
           </div>

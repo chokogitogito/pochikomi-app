@@ -35,13 +35,19 @@ export default function Home() {
                 href="/survey/classic"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-brand shadow-sm pressable hover:bg-surface-secondary"
               >
-                The蔵ssic アンケートを開く
+                ゴルフ場A アンケートを開く
               </Link>
               <Link
                 href="/survey/ss-grand"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-text-secondary shadow-sm pressable hover:bg-surface-secondary"
               >
-                SS.GRAND アンケートを開く
+                ゴルフ場B アンケートを開く
+              </Link>
+              <Link
+                href="/survey/golf"
+                className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-text-secondary shadow-sm pressable hover:bg-surface-secondary"
+              >
+                ゴルフ場（汎用デモ）アンケートを開く
               </Link>
               <Link
                 href="/admin"

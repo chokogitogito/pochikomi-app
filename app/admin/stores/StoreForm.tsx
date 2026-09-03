@@ -7,17 +7,17 @@ import type { Store, StorePlan, StoreStatus } from "@/lib/types";
 const defaultStore: Store = {
   id: "",
   name: "",
-  category: "",
+  category: "ゴルフ場・カントリークラブ",
   plan: "starter",
   status: "setup",
-  keywords: ["接客", "雰囲気", "清潔感"],
+  keywords: ["コース整備", "グリーン", "食事・ランチ", "接客対応"],
   googleMapsUrl: "https://search.google.com/local/writereview?placeid=",
   monthlyGoal: 30,
   surveyOptions: {
-    sources: ["Google検索", "Googleマップ", "Instagram・SNS", "友人・知人の紹介", "その他"],
-    menus: ["体験・初回利用", "通常のご利用", "その他"],
-    goodPoints: ["スタッフの対応が丁寧だった", "説明がわかりやすかった", "雰囲気が良かった"],
-    badPoints: ["説明が少し分かりにくかった", "待ち時間が長く感じた", "案内や連絡が遅く感じた"],
+    sources: ["Google検索", "Googleマップ", "予約サイト（楽天GORA/GDO等）", "知人・コンペ紹介", "その他"],
+    menus: ["レギュラーラウンド（18H）", "ハーフプレー", "コンペ利用", "練習場・レストランのみ", "その他"],
+    goodPoints: ["コース・グリーンの手入れが良い", "食事が美味しい", "スタッフが親切で進行がスムーズ", "アクセスが良い"],
+    badPoints: ["進行の待ち時間が気になった", "設備の空き状況が気になった", "案内が分かりにくかった"],
   },
 };
 
@@ -72,19 +72,19 @@ export default function StoreForm({
           label="店舗ID"
           value={store.id}
           disabled={mode === "edit"}
-          placeholder="例: shibuya-cafe"
+          placeholder="例: golf-course-a"
           onChange={(value) => update("id", value)}
         />
         <TextField
           label="店舗名"
           value={store.name}
-          placeholder="例: サンプルカフェ 渋谷店"
+          placeholder="例: ○○ゴルフ倶楽部 / ○○カントリークラブ"
           onChange={(value) => update("name", value)}
         />
         <TextField
           label="業種"
           value={store.category}
-          placeholder="例: 飲食店 / 美容サロン / 歯科医院"
+          placeholder="例: ゴルフ場 / ゴルフコース / カントリークラブ"
           onChange={(value) => update("category", value)}
         />
         <label className="block text-sm font-bold text-slate-700">

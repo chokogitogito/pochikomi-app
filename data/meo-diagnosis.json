@@ -4,8 +4,8 @@
   "stores": {
     "classic": {
       "id": "classic",
-      "name": "ゴルフコンディショニングスタジオ宇都宮 The蔵ssic",
-      "shortName": "The蔵ssic",
+      "name": "ゴルフ場A（チャンピオンコース）",
+      "shortName": "ゴルフ場A",
       "totalScore": 47.2,
       "maxScore": 100,
       "rank": "C",
@@ -58,7 +58,7 @@
           "rank": 3,
           "category": "AI検索文脈",
           "potential": 13.5,
-          "reason": "ビジネス説明文・強みの言語化でAI推薦を獲得"
+          "reason": "ビジネス説明文・コース特徴の言語化でAI推薦を獲得"
         }
       ],
       "gbpPerformance": {
@@ -88,13 +88,13 @@
           {
             "month": "6月",
             "reviews": 5,
-            "views": 4100,
+            "views": 3900,
             "directions": 88
           },
           {
             "month": "7月",
             "reviews": 8,
-            "views": 5300,
+            "views": 5200,
             "directions": 120
           },
           {
@@ -114,41 +114,41 @@
     },
     "ss-grand": {
       "id": "ss-grand",
-      "name": "SS.GRAND（エスエスグランド スクールオブゴルフ）",
-      "shortName": "SS.GRAND",
-      "totalScore": 32.9,
+      "name": "ゴルフ場B（リゾートコース）",
+      "shortName": "ゴルフ場B",
+      "totalScore": 41.5,
       "maxScore": 100,
       "rank": "C",
       "breakdown": [
         {
           "category": "基礎整合性",
-          "score": 15,
+          "score": 18,
           "max": 20,
-          "note": "未整備: 説明文の有無"
+          "note": "一部項目未入力"
         },
         {
           "category": "鮮度・更新",
           "score": 0,
           "max": 15,
-          "note": "最終投稿 未使用日前"
+          "note": "投稿が停滞"
         },
         {
           "category": "口コミ",
           "score": 5.5,
           "max": 35,
-          "note": "件数1件 / 平均5.0 / 返信0%"
+          "note": "件数1件 / 返信なし"
         },
         {
           "category": "視覚コンテンツ",
-          "score": 12,
+          "score": 15,
           "max": 15,
-          "note": "写真20枚以上 / 動画あり"
+          "note": "写真充実"
         },
         {
           "category": "AI検索文脈",
-          "score": 0.4,
+          "score": 3,
           "max": 15,
-          "note": "説明文がなくAI推薦が困難"
+          "note": "特徴文の補強余地あり"
         }
       ],
       "improvements": [
@@ -156,27 +156,27 @@
           "rank": 1,
           "category": "口コミ",
           "potential": 29.5,
-          "reason": "口コミ1件のみのため、口コミ獲得で最大+29.5点（全項目中最大）の伸びしろ"
+          "reason": "来場者への口コミ依頼の仕組み化で最大+29.5点の改善余地"
         },
         {
           "rank": 2,
           "category": "鮮度・更新",
           "potential": 15,
-          "reason": "筑波ジャンボゴルフセンター内の最新レッスンの発信"
+          "reason": "イベント情報や季節のコース写真の定期投稿"
         },
         {
           "rank": 3,
           "category": "AI検索文脈",
-          "potential": 14.6,
-          "reason": "ジュニアスクール・打席練習の強みを説明文に反映"
+          "potential": 12,
+          "reason": "リゾート・景観・食事の強みを明確に記載"
         }
       ],
       "gbpPerformance": {
         "monthlyViews": 4200,
-        "searchViews": 1350,
-        "mapsViews": 2850,
-        "directSearchRatio": 18,
-        "discoverySearchRatio": 82,
+        "searchViews": 1380,
+        "mapsViews": 2820,
+        "directSearchRatio": 22,
+        "discoverySearchRatio": 78,
         "actions": {
           "directionRequests": 112,
           "websiteClicks": 64,
@@ -225,39 +225,39 @@
   },
   "competitors": [
     {
-      "name": "The蔵ssic（自社）",
+      "name": "ゴルフ場A（自社）",
       "rating": 5,
       "reviews": 7,
       "isOwn": true,
-      "category": "インドアスタジオ"
+      "category": "本コース"
     },
     {
-      "name": "SS.GRAND（自社）",
+      "name": "ゴルフ場B（自社）",
       "rating": 5,
       "reviews": 1,
       "isOwn": true,
-      "category": "スクール・練習場"
+      "category": "リゾートコース"
     },
     {
-      "name": "Lounge Range 宇都宮",
+      "name": "競合Aゴルフ倶楽部",
       "rating": 4.9,
       "reviews": 57,
       "isOwn": false,
-      "category": "インドアゴルフ"
+      "category": "近隣ゴルフ場"
     },
     {
-      "name": "SWING24/7 宇都宮店",
+      "name": "競合Bカントリークラブ",
       "rating": 4.9,
       "reviews": 56,
       "isOwn": false,
-      "category": "インドアゴルフ"
+      "category": "近隣ゴルフ場"
     },
     {
-      "name": "雀宮ゴルフ練習場",
+      "name": "競合Cゴルフ場",
       "rating": 4,
       "reviews": 68,
       "isOwn": false,
-      "category": "屋外練習場"
+      "category": "近隣ゴルフ場"
     }
   ]
 }

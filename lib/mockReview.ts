@@ -31,7 +31,7 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
           point2 ? `${point2}のも感動でした！` : "",
           commentClean ? commentClean.replace(/。$/, "！") : "",
           "",
-          area ? `${area}で良いスタジオを探している人にはすごくおすすめです😊` : "通うのが楽しみになりました😊",
+          area ? `${area}で良いゴルフ場を探している人にはすごくおすすめです😊` : "ゴルフ仲間にもぜひおすすめしたいです😊",
         ]
           .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
           .join("\n"),
@@ -46,7 +46,7 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
           point2 ? `${point2}ところも分かりやすくて良かったです！` : "",
           commentClean,
           "",
-          area ? `${area}でゴルフレッスンを検討中の方にぜひおすすめしたいです！` : "今後も定期的に通いたいと思います！",
+          area ? `${area}でゴルフ場をお探しの方にぜひおすすめしたいです！` : "またぜひラウンドに伺いたいと思います！",
         ]
           .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
           .join("\n"),
@@ -61,7 +61,7 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
           point2 ? `${point2}ところにも深い安心感がございます。` : "",
           commentClean,
           "",
-          "今後とも継続してお願いしたいと考えております。",
+          "今後ともぜひ利用させていただきたいと考えております。",
         ]
           .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
           .join("\n"),

@@ -204,7 +204,7 @@ export default function SurveyPage() {
               どこで知りましたか？
             </h2>
             <p className="text-text-secondary text-sm mb-6">
-              当スタジオを知ったきっかけを教えてください。
+              当ゴルフ場を知ったきっかけを教えてください。
             </p>
             <div className="space-y-2.5">
               {store.surveyOptions.sources.map((s) => (
@@ -328,7 +328,7 @@ export default function SurveyPage() {
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
                 maxLength={200}
-                placeholder="例：スイングの原因を数値で説明してもらえて納得できました"
+                placeholder="例：グリーンの仕上がりが良く、スタッフの対応も丁寧で楽しいラウンドでした"
                 className="w-full rounded-2xl border border-border-default bg-surface px-4 py-3 text-base text-text-primary placeholder:text-text-quaternary focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand shadow-card"
               />
             </div>
