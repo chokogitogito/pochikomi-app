@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import QRCode from "react-qr-code";
-import { stores } from "@/lib/stores";
+import type { Store } from "@/lib/types";
 
 export default function QRPage() {
-  const storeList = Object.values(stores);
-  const [selectedId, setSelectedId] = useState(storeList[0]?.id ?? "");
+  const [storeList, setStoreList] = useState<Store[]>([]);
+  const [selectedId, setSelectedId] = useState("");
+
+  useEffect(() => {
+    fetch("/api/stores")
+      .then((res) => res.json())
+      .then((data) => {
+        setStoreList(data.stores);
+        setSelectedId(data.stores[0]?.id ?? "");
+      });
+  }, []);
 
   // アプリのベースURL（本番ではVercelのURLに変わる）
   const baseUrl =
@@ -15,16 +25,19 @@ export default function QRPage() {
       : process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const surveyUrl = `${baseUrl}/survey/${selectedId}`;
-  const selectedStore = stores[selectedId];
+  const selectedStore = storeList.find((store) => store.id === selectedId);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-md mx-auto">
         {/* ヘッダー */}
         <div className="mb-6">
+          <Link href="/admin" className="text-sm font-bold text-green-600 underline">
+            管理画面へ戻る
+          </Link>
           <h1 className="text-xl font-bold text-gray-800">QRコード管理</h1>
           <p className="text-gray-500 text-sm mt-1">
-            店舗のQRコードを表示・印刷できます。
+            店舗別のアンケートQRコードを表示・印刷できます。
           </p>
         </div>
 
@@ -70,7 +83,7 @@ export default function QRPage() {
               onClick={() => window.print()}
               className="w-full py-3 rounded-xl bg-orange-500 text-white font-bold hover:bg-orange-600 transition-colors"
             >
-              🖨️ 印刷する
+              印刷する
             </button>
 
             <p className="text-xs text-gray-400 mt-3">
@@ -88,7 +101,7 @@ export default function QRPage() {
             rel="noopener noreferrer"
             className="text-sm text-orange-500 underline"
           >
-            アンケート画面をプレビューする →
+            アンケート画面をプレビューする
           </a>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -15,24 +16,34 @@ export default function Home() {
           />
         </div>
         <p className="text-gray-500 text-sm mb-8 leading-relaxed">
-          お店のQRコードを読み取ることで、<br />
-          かんたんに口コミを投稿できます。
+          お店のQRコードから、かんたんなアンケートと<br />
+          口コミ投稿のサポートを利用できます。
         </p>
         <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
           <p className="text-gray-400 text-sm">
             店舗のQRコードをスキャンしてください
           </p>
         </div>
-        {/* 開発用テストリンク */}
-        <div className="mt-8">
-          <p className="text-xs text-gray-300 mb-2">── 開発用テスト ──</p>
-          <a
-            href="/survey/test-store"
-            className="inline-block text-sm text-green-500 underline"
-          >
-            テスト店舗のアンケートを開く
-          </a>
-        </div>
+        {/* 開発用テストリンク。NEXT_PUBLIC_SHOW_DEV_LINKS=true のときだけ表示する */}
+        {process.env.NEXT_PUBLIC_SHOW_DEV_LINKS === "true" && (
+          <div className="mt-8">
+            <p className="text-xs text-gray-300 mb-2">開発用テスト</p>
+            <Link
+              href="/survey/classic"
+              className="inline-block text-sm text-green-500 underline"
+            >
+              The蔵ssicのアンケートを開く
+            </Link>
+            <div className="mt-4">
+              <Link
+                href="/admin"
+                className="inline-block text-sm text-gray-500 underline"
+              >
+                管理画面を開く
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

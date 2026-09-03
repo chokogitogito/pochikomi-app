@@ -1,0 +1,166 @@
+{
+  "stores": [
+    {
+      "id": "classic",
+      "name": "ゴルフコンディショニングスタジオ宇都宮 The蔵ssic",
+      "shortName": "The蔵ssic",
+      "category": "インドアゴルフスタジオ",
+      "plan": "growth",
+      "status": "active",
+      "keywords": [
+        "宇都宮",
+        "インドアゴルフ",
+        "ゴルフレッスン",
+        "ゴルフスクール",
+        "コンディショニング",
+        "スイング診断"
+      ],
+      "googleMapsUrl": "https://search.google.com/local/writereview?placeid=ChIJq6cE-5BnH2ARkt6391zxpfE",
+      "monthlyGoal": 20,
+      "surveyOptions": {
+        "sources": [
+          "Google検索",
+          "Googleマップ",
+          "YouTubeのレッスン動画",
+          "知人・友人の紹介",
+          "ホームページを見て",
+          "近くを通りかかって",
+          "以前から知っていた",
+          "その他"
+        ],
+        "menus": [
+          "体験レッスン",
+          "レンジレッスン（グループ）",
+          "The蔵ssicLab／SAKAizm パーソナルレッスン",
+          "ゴルフフィットネス・コンディショニング",
+          "レンジ（打席で自主練習）",
+          "コースレッスン（屋外）",
+          "その他"
+        ],
+        "goodPoints": [
+          "スイングの課題を的確に指摘してもらえた",
+          "数値やデータで説明してもらえた",
+          "体の使い方から教えてもらえた",
+          "初心者にも分かりやすい説明だった",
+          "自分に合った練習メニューを組んでもらえた",
+          "スコアやショットが実際に良くなった",
+          "屋内で天候に左右されず練習できる",
+          "設備・トレーニング機器が充実している",
+          "予約が取りやすく通いやすい",
+          "コーチ・スタッフの雰囲気が良い"
+        ],
+        "badPoints": [
+          "説明が少し分かりにくかった",
+          "予約が取りづらいと感じた",
+          "料金や会員プランが分かりにくかった",
+          "期待していた内容と少し違った",
+          "打席や設備の空き状況が気になった",
+          "コーチによって指導内容に差を感じた",
+          "施設で気になる点があった",
+          "連絡や案内が分かりにくかった"
+        ]
+      }
+    },
+    {
+      "id": "ss-grand",
+      "name": "SS.GRAND（エスエスグランド）",
+      "shortName": "SS.GRAND",
+      "category": "ゴルフ練習場",
+      "plan": "starter",
+      "status": "setup",
+      "keywords": [
+        "宇都宮",
+        "ゴルフ練習場",
+        "ゴルフレッスン",
+        "ゴルフスクール"
+      ],
+      "googleMapsUrl": "",
+      "monthlyGoal": 20,
+      "surveyOptions": {
+        "sources": [
+          "Google検索",
+          "Googleマップ",
+          "知人・友人の紹介",
+          "ホームページを見て",
+          "近くを通りかかって",
+          "以前から知っていた",
+          "その他"
+        ],
+        "menus": [
+          "打席での練習",
+          "スクールレッスン",
+          "ジュニアレッスン",
+          "体験レッスン",
+          "その他"
+        ],
+        "goodPoints": [
+          "打席が広く練習しやすい",
+          "スタッフの対応が丁寧だった",
+          "設備が充実している",
+          "駐車場が停めやすい",
+          "料金に納得感があった",
+          "レッスンの説明が分かりやすかった",
+          "営業時間が使いやすい",
+          "また利用したいと感じた"
+        ],
+        "badPoints": [
+          "打席の空き状況が気になった",
+          "説明が少し分かりにくかった",
+          "料金が分かりにくかった",
+          "設備で気になる点があった",
+          "期待していた内容と少し違った",
+          "案内や連絡が分かりにくかった"
+        ]
+      }
+    }
+  ],
+  "coupons": [
+    {
+      "id": "classic-thanks",
+      "storeId": "classic",
+      "title": "アンケートご協力のお礼",
+      "description": "次回ご来店時にご利用いただけるお礼の特典です。",
+      "expiresInDays": 30,
+      "issuedCount": 13,
+      "active": true
+    },
+    {
+      "id": "ssgrand-thanks",
+      "storeId": "ss-grand",
+      "title": "アンケートご協力のお礼",
+      "description": "次回ご来店時にご利用いただけるお礼の特典です。",
+      "expiresInDays": 30,
+      "issuedCount": 0,
+      "active": true
+    }
+  ],
+  "metrics": [
+    {
+      "storeId": "classic",
+      "surveyStarts": 97,
+      "generatedReviews": 71,
+      "reviewClicks": 54,
+      "couponsIssued": 13,
+      "averageRating": 4.6
+    },
+    {
+      "storeId": "ss-grand",
+      "surveyStarts": 0,
+      "generatedReviews": 0,
+      "reviewClicks": 0,
+      "couponsIssued": 0,
+      "averageRating": 0
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-mtkr6rpr-0571bs",
+      "storeId": "classic",
+      "type": "survey_started",
+      "payload": {
+        "source": "Google検索"
+      },
+      "receivedAt": "2026-09-02T23:54:46.863Z"
+    }
+  ]
+}
