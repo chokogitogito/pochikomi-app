@@ -3,13 +3,26 @@ import "server-only";
 import { promises as fs } from "fs";
 import path from "path";
 import type { AppDb, Coupon, Store, StoreEvent, StoreMetrics } from "@/lib/types";
+import {
+  getStoresFromSupabase,
+  getStoreFromSupabase,
+  getCouponsFromSupabase,
+  getPrimaryCouponFromSupabase,
+  recordEventToSupabase,
+  getMetricsFromSupabase,
+  normalizeSlug,
+} from "@/lib/repositories/supabase-repository";
 
 const dbPath = path.join(process.cwd(), "data", "db.json");
 
-// Vercel等のサーバーレス環境ではファイルシステムが読み取り専用のため、
-// data/db.json はシードとして読み込み、更新はプロセス内のメモリに保持する。
-// 商談デモではこれで十分に動き、書き込み失敗で画面が止まることもない。
-// 恒久的な永続化が必要になった段階でSupabase等へ差し替える。
+// Supabase設定の有無を判定
+function isSupabaseConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
+
+// ローカルJSONキャッシュ
 let cache: AppDb | null = null;
 
 export async function readDb(): Promise<AppDb> {
@@ -26,7 +39,6 @@ export async function writeDb(db: AppDb): Promise<void> {
   try {
     await fs.writeFile(dbPath, `${JSON.stringify(db, null, 2)}\n`, "utf8");
   } catch (error) {
-    // 読み取り専用環境では想定どおりの失敗。メモリ上の状態は保持されている。
     console.warn("[db] ファイルへの書き込みをスキップしました", error);
   }
 }
@@ -42,15 +54,31 @@ export function createSlug(value: string): string {
 }
 
 export async function getStores(): Promise<Store[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const stores = await getStoresFromSupabase();
+      if (stores.length > 0) return stores;
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for getStores", err);
+    }
+  }
+
   const db = await readDb();
   return db.stores;
 }
 
 export async function getStore(storeId: string): Promise<Store | null> {
+  if (isSupabaseConfigured()) {
+    try {
+      const store = await getStoreFromSupabase(storeId);
+      if (store) return store;
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for getStore", err);
+    }
+  }
+
   const db = await readDb();
-  // 旧IDからの後方互換マッピング
-  const normalizedId =
-    storeId === "classic" ? "golf-a" : storeId === "ss-grand" ? "golf-b" : storeId;
+  const normalizedId = normalizeSlug(storeId);
   return db.stores.find((store) => store.id === normalizedId) ?? null;
 }
 
@@ -72,6 +100,15 @@ export async function saveStore(input: Store): Promise<Store> {
 }
 
 export async function getCoupons(storeId?: string): Promise<Coupon[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const coupons = await getCouponsFromSupabase(storeId);
+      if (coupons.length > 0) return coupons;
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for getCoupons", err);
+    }
+  }
+
   const db = await readDb();
   return db.coupons.filter((coupon) => !storeId || coupon.storeId === storeId);
 }
@@ -104,6 +141,14 @@ export async function saveCoupon(input: Coupon): Promise<Coupon> {
 }
 
 export async function getMetrics(storeId: string): Promise<StoreMetrics> {
+  if (isSupabaseConfigured()) {
+    try {
+      return await getMetricsFromSupabase(storeId);
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for getMetrics", err);
+    }
+  }
+
   const db = await readDb();
   return db.metrics.find((item) => item.storeId === storeId) ?? createEmptyMetrics(storeId);
 }
@@ -114,6 +159,15 @@ export async function getAllMetrics(): Promise<StoreMetrics[]> {
 }
 
 export async function getPrimaryCoupon(storeId: string): Promise<Coupon | null> {
+  if (isSupabaseConfigured()) {
+    try {
+      const coupon = await getPrimaryCouponFromSupabase(storeId);
+      if (coupon) return coupon;
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for getPrimaryCoupon", err);
+    }
+  }
+
   const db = await readDb();
   return db.coupons.find((coupon) => coupon.storeId === storeId && coupon.active) ?? null;
 }
@@ -137,6 +191,15 @@ export async function recordEvent(
   type: string,
   payload: Record<string, unknown> | null
 ): Promise<StoreEvent> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supaEvent = await recordEventToSupabase(storeId, type, payload);
+      if (supaEvent) return supaEvent;
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for recordEvent", err);
+    }
+  }
+
   const db = await readDb();
   const event: StoreEvent = {
     id: `evt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,

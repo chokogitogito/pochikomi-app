@@ -6,25 +6,51 @@ import { getStore } from "@/lib/db";
 import { buildPrompt, type SurveyAnswers } from "@/lib/prompt";
 import { buildMockDrafts } from "@/lib/mockReview";
 import type { ReviewDraft, ReviewTone } from "@/lib/types";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 const TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS) || 12000;
 const TONES: ReviewTone[] = ["friendly", "standard", "polite"];
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const store = await getStore(String(body.storeId ?? ""));
+  // レートリミット検証（IPヘッダーまたはフォールバック）
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+  const rateLimit = checkRateLimit(`generate:${ip}`, 15, 60_000); // 1分間に最大15回
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "リクエスト回数が上限を超えました。しばらく待ってから再度お試しください。" },
+      { status: 429 }
+    );
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return NextResponse.json({ error: "無効なリクエストです" }, { status: 400 });
+  }
+
+  const storeId = String(body.storeId ?? "");
+  const store = await getStore(storeId);
 
   if (!store) {
     return NextResponse.json({ error: "店舗が見つかりません" }, { status: 404 });
   }
 
+  // 入力値バリデーション
+  const comment = String(body.comment ?? "").slice(0, 500); // 最大500字に制限
+  const rawRating = Number(body.rating);
+  const rating = Number.isFinite(rawRating) && rawRating >= 1 && rawRating <= 5 ? rawRating : 5;
+
   const answers: SurveyAnswers = {
-    source: String(body.source ?? ""),
-    menu: String(body.menu ?? ""),
-    rating: Number(body.rating) || 5,
-    selectedPoints: Array.isArray(body.selectedPoints) ? body.selectedPoints.map(String) : [],
-    comment: String(body.comment ?? ""),
+    source: String(body.source ?? "").slice(0, 100),
+    menu: String(body.menu ?? "").slice(0, 100),
+    rating,
+    selectedPoints: Array.isArray(body.selectedPoints)
+      ? body.selectedPoints.map((p: unknown) => String(p).slice(0, 100))
+      : [],
+    comment,
   };
 
   const apiKey = process.env.GEMINI_API_KEY;
