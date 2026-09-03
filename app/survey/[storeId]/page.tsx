@@ -182,14 +182,16 @@ export default function SurveyPage() {
   return (
     <div className="min-h-screen bg-canvas text-text-primary flex flex-col">
       {/* Apple風 すりガラスフローティングヘッダー */}
-      <header className="sticky top-0 z-30 frosted-nav px-5 py-3.5 flex items-center justify-between border-b border-border-default shadow-xs">
-        <Link href="/" className="flex items-center pressable">
-          <Logo size={28} />
-        </Link>
-        <div className="bg-surface-secondary px-3 py-1 rounded-full border border-border-subtle">
-          <p className="text-xs font-semibold text-text-secondary truncate max-w-[160px]">
-            {storeName}
-          </p>
+      <header className="sticky top-0 z-30 frosted-nav border-b border-border-default shadow-xs bg-surface/85 backdrop-blur-md">
+        <div className="max-w-md w-full mx-auto px-5 py-3 flex items-center justify-between">
+          <Link href="/" className="flex items-center pressable" aria-label="ポチコミ トップへ">
+            <Logo size={28} />
+          </Link>
+          <div className="bg-surface-secondary px-3 py-1 rounded-full border border-border-subtle">
+            <p className="text-xs font-semibold text-text-secondary truncate max-w-[160px]">
+              {storeName}
+            </p>
+          </div>
         </div>
       </header>
 

@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 
 type LogoProps = {
   className?: string;
@@ -18,18 +17,17 @@ export function Logo({ className = "", variant = "horizontal", size }: LogoProps
       : "/logo/logo-original-transparent.png";
 
   return (
-    <span
-      className={`inline-block relative shrink-0 select-none ${className}`}
-      style={{ width: `${width}px`, height: `${height}px` }}
-    >
-      <Image
-        src={src}
-        alt="ポチコミ"
-        width={width}
-        height={height}
-        className="w-full h-full object-contain block"
-        priority
-      />
-    </span>
+    // 素のimgタグを使用し、Next.jsの画像プロキシやハイドレーションによる遅延・非表示を完全に防止
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="ポチコミ"
+      width={width}
+      height={height}
+      className={`inline-block object-contain select-none shrink-0 ${className}`}
+      style={{ height: `${height}px`, width: `${width}px`, minWidth: `${width}px` }}
+      loading="eager"
+      decoding="sync"
+    />
   );
 }
