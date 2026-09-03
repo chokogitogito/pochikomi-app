@@ -56,7 +56,7 @@ export default function AdminLayout({
       <aside className="hidden md:flex md:w-64 flex-col bg-surface border-r border-border-default shrink-0">
         <div className="p-6 border-b border-border-subtle">
           <Link href="/admin" className="block pressable">
-            <Logo variant="horizontal" size={28} className="text-brand" />
+            <Logo size={32} />
           </Link>
           <span className="inline-block mt-2 text-[10px] font-bold uppercase tracking-wider text-text-tertiary bg-surface-secondary px-2 py-0.5 rounded">
             Admin Console
@@ -107,7 +107,7 @@ export default function AdminLayout({
       <div className="md:hidden sticky top-0 z-30 frosted-nav">
         <div className="px-5 py-3 flex items-center justify-between">
           <Link href="/admin" className="pressable">
-            <Logo variant="horizontal" size={24} className="text-brand" />
+            <Logo size={26} />
           </Link>
           <span className="text-[11px] font-bold text-text-tertiary bg-surface-secondary px-2.5 py-0.5 rounded-full border border-border-subtle">
             管理画面

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Logo } from "@/components/Logo";
@@ -181,10 +182,10 @@ export default function SurveyPage() {
   return (
     <div className="min-h-screen bg-canvas text-text-primary flex flex-col">
       {/* Apple風 すりガラスフローティングヘッダー */}
-      <header className="sticky top-0 z-30 frosted-nav px-5 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Logo variant="horizontal" size={24} className="text-brand" />
-        </div>
+      <header className="sticky top-0 z-30 frosted-nav px-5 py-3.5 flex items-center justify-between border-b border-border-default shadow-xs">
+        <Link href="/" className="flex items-center pressable">
+          <Logo size={28} />
+        </Link>
         <div className="bg-surface-secondary px-3 py-1 rounded-full border border-border-subtle">
           <p className="text-xs font-semibold text-text-secondary truncate max-w-[160px]">
             {storeName}
