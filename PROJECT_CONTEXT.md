@@ -19,9 +19,11 @@
 - 判断役: Codex または Claude Opus（実装役と別ベンダー枠）
 
 ## 最新の現在地 (2026-09-04)
-- 003計画（Pro契約先行・本番稼働までの実装計画）の全フェーズ完了。
-- Supabase Pro本番プロジェクト（`pochikomi-prod`）稼働、全テーブルRLS、30日TTL cache、Auth保護、Vercel環境変数設定、実地通信検証すべて完了。
-- Git HEAD: `f868a79`
+- 004計画（The蔵ssic／SS.GRAND本番運用化）の全フェーズ完了。
+- 本番Supabase DBに実店舗データ復元（The蔵ssic, SS.GRAND）、管理者認可ガード（`lib/auth/guard.ts`）によるAPI保護、動的ダッシュボード（所属店舗のみ表示・実測メトリクス集計）、パスワード再設定画面（`/admin/reset-password`）を実装。
+- AIレビュー運用基準（Tier 1: 0段機械検証グリーン、1段選別役agy、2段判断役Claude）の二往復検証を通過し P1ゼロ（PASS）達成。
+- 本番Vercel反映および実地疎通検証（200/307/401）すべて完了。
+- Git HEAD: `9631ea8`
 
 ## 作業ルール
 - 設計・仕様・タスクの正本は `docs_path`（Obsidian側）を参照・更新する。
