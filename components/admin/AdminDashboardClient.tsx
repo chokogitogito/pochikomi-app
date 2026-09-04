@@ -50,8 +50,14 @@ export default function AdminDashboardClient({
       : 0;
 
   // GBPデモデータ（参考表示）
-  const gbpStoreKey = selectedStoreId === "golf-b" ? "golf-b" : "golf-a";
-  const currentGbp = meoData.stores[gbpStoreKey]?.gbpPerformance || meoData.stores["golf-a"].gbpPerformance;
+  const gbpStoreKey =
+    selectedStoreId === "ss-grand" || selectedStoreId === "golf-b"
+      ? "ss-grand"
+      : "classic";
+  const currentGbp =
+    meoData.stores[gbpStoreKey]?.gbpPerformance ||
+    meoData.stores["classic"]?.gbpPerformance ||
+    meoData.stores["golf-a"].gbpPerformance;
 
   return (
     <div className="p-5 md:p-8 max-w-6xl mx-auto space-y-8">
@@ -315,23 +321,23 @@ export default function AdminDashboardClient({
         <div className="grid md:grid-cols-2 gap-5">
           <DiagnosisCard
             storeName="ゴルフコンディショニングスタジオ宇都宮 The蔵ssic"
-            store={meoData.stores["golf-a"]}
+            store={meoData.stores["classic"] || meoData.stores["golf-a"]}
           />
           <DiagnosisCard
             storeName="SS.GRAND（エスエスグランド スクールオブゴルフ）"
-            store={meoData.stores["golf-b"]}
+            store={meoData.stores["ss-grand"] || meoData.stores["golf-b"]}
           />
         </div>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          4. 近隣ゴルフ施設競合分析
+          4. 宇都宮ゴルフスタジオ競合分析（評価 × 口コミ数 散布図）
       ───────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
             <h2 className="text-lg font-bold text-text-primary">
-              4. 近隣エリア競合分析（評価 × 口コミ数 散布図）
+              4. 宇都宮ゴルフスタジオ競合分析（評価 × 口コミ数 散布図）
             </h2>
             <p className="text-xs text-text-tertiary">
               Googleマップ近隣競合実測データ（取得日: {meoData.competitorCheckDate}）
@@ -344,6 +350,31 @@ export default function AdminDashboardClient({
 
         <div className="bg-surface rounded-2xl p-6 border border-border-default shadow-card">
           <CompetitorScatterChart competitors={meoData.competitors} />
+
+          <div className="mt-6 pt-5 border-t border-border-subtle grid sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 rounded-xl bg-surface-secondary">
+              <p className="font-bold text-text-primary">自社2拠点の現状</p>
+              <p className="text-text-secondary mt-1">
+                The蔵ssic: <strong>★5.0 (7件)</strong><br />
+                SS.GRAND: <strong>★5.0 (1件)</strong><br />
+                満足度は最高ですが、件数が少なくマップで埋もれています。
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-surface-secondary">
+              <p className="font-bold text-text-primary">近隣上位競合</p>
+              <p className="text-text-secondary mt-1">
+                雀宮練習場: <strong>4.0 (68件)</strong><br />
+                Lounge Range: <strong>4.9 (57件)</strong><br />
+                SWING24/7: <strong>4.9 (56件)</strong>
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-brand-light border border-brand-border text-brand-text">
+              <p className="font-bold">ポチコミ導入後の目標</p>
+              <p className="mt-1">
+                月20件 × 3ヶ月で<strong>60件超</strong>に到達。評価★5.0を維持したまま宇都宮エリアNo.1のMEO上位表示を獲得します。
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
