@@ -331,13 +331,13 @@ export default function AdminDashboardClient({
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          4. 宇都宮ゴルフスタジオ競合分析（評価 × 口コミ数 散布図）
+          4. 競合分析（評価 × 口コミ数 散布図）
       ───────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
             <h2 className="text-lg font-bold text-text-primary">
-              4. 宇都宮ゴルフスタジオ競合分析（評価 × 口コミ数 散布図）
+              4. 競合分析（評価 × 口コミ数 散布図）
             </h2>
             <p className="text-xs text-text-tertiary">
               Googleマップ近隣競合実測データ（取得日: {meoData.competitorCheckDate}）
@@ -371,7 +371,7 @@ export default function AdminDashboardClient({
             <div className="p-3 rounded-xl bg-brand-light border border-brand-border text-brand-text">
               <p className="font-bold">ポチコミ導入後の目標</p>
               <p className="mt-1">
-                月20件 × 3ヶ月で<strong>60件超</strong>に到達。評価★5.0を維持したまま宇都宮エリアNo.1のMEO上位表示を獲得します。
+                月20件 × 3ヶ月で<strong>60件超</strong>に到達。評価★5.0を維持したまま地域エリアNo.1のMEO上位表示を獲得します。
               </p>
             </div>
           </div>
