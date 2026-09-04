@@ -83,7 +83,9 @@ export async function getStore(storeId: string): Promise<Store | null> {
   }
 
   const db = await readDb();
-  const normalizedId = normalizeSlug(storeId);
+  // 相互互換マッピング（golf-a -> classic, golf-b -> ss-grand）
+  const normalizedId =
+    storeId === "golf-a" ? "classic" : storeId === "golf-b" ? "ss-grand" : normalizeSlug(storeId);
   return db.stores.find((store) => store.id === normalizedId) ?? null;
 }
 

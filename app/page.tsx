@@ -32,22 +32,22 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-2">
               <Link
-                href="/survey/golf-a"
+                href="/survey/classic"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-brand shadow-sm pressable hover:bg-surface-secondary"
               >
-                ゴルフ場A アンケートを開く
+                The蔵ssic アンケートを開く
               </Link>
               <Link
-                href="/survey/golf-b"
+                href="/survey/ss-grand"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-text-secondary shadow-sm pressable hover:bg-surface-secondary"
               >
-                ゴルフ場B アンケートを開く
+                SS.GRAND アンケートを開く
               </Link>
               <Link
                 href="/survey/golf"
                 className="py-2.5 px-4 rounded-xl bg-surface border border-border-default text-sm font-bold text-text-secondary shadow-sm pressable hover:bg-surface-secondary"
               >
-                ゴルフ場（汎用デモ）アンケートを開く
+                ゴルフ場（商談デモ用）アンケートを開く
               </Link>
               <Link
                 href="/admin"
