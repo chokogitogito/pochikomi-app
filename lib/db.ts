@@ -6,11 +6,15 @@ import type { AppDb, Coupon, Store, StoreEvent, StoreMetrics } from "@/lib/types
 import {
   getStoresFromSupabase,
   getStoreFromSupabase,
+  saveStoreToSupabase,
   getCouponsFromSupabase,
+  getCouponFromSupabase,
+  saveCouponToSupabase,
   getPrimaryCouponFromSupabase,
   recordEventToSupabase,
   getMetricsFromSupabase,
   issueCouponFromSupabase,
+  getUserManagedLocations,
   normalizeSlug,
 } from "@/lib/repositories/supabase-repository";
 
@@ -84,6 +88,10 @@ export async function getStore(storeId: string): Promise<Store | null> {
 }
 
 export async function saveStore(input: Store): Promise<Store> {
+  if (isSupabaseConfigured()) {
+    return await saveStoreToSupabase(input);
+  }
+
   const db = await readDb();
   const id = createSlug(input.id || input.name);
   const store: Store = { ...input, id };
@@ -115,11 +123,24 @@ export async function getCoupons(storeId?: string): Promise<Coupon[]> {
 }
 
 export async function getCoupon(couponId: string): Promise<Coupon | null> {
+  if (isSupabaseConfigured()) {
+    try {
+      const coupon = await getCouponFromSupabase(couponId);
+      if (coupon) return coupon;
+    } catch (err) {
+      console.warn("[db] Supabase fallback to local db.json for getCoupon", err);
+    }
+  }
+
   const db = await readDb();
   return db.coupons.find((coupon) => coupon.id === couponId) ?? null;
 }
 
 export async function saveCoupon(input: Coupon): Promise<Coupon> {
+  if (isSupabaseConfigured()) {
+    return await saveCouponToSupabase(input);
+  }
+
   const db = await readDb();
   const id = createSlug(input.id || input.title);
   const coupon: Coupon = {
@@ -139,6 +160,21 @@ export async function saveCoupon(input: Coupon): Promise<Coupon> {
 
   await writeDb(db);
   return coupon;
+}
+
+export async function getUserStores(userId: string): Promise<Store[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      // 所属組織の管理店舗のみを返す（0件の場合は他店舗へフォールバックさせず空配列を安全に返す）
+      return await getUserManagedLocations(userId);
+    } catch (err) {
+      console.error("[db] Supabase error in getUserStores:", err);
+      return [];
+    }
+  }
+
+  // ローカル開発環境（Supabase未設定環境）のみ全店舗を返す
+  return getStores();
 }
 
 export async function getMetrics(storeId: string): Promise<StoreMetrics> {

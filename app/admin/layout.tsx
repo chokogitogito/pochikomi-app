@@ -15,20 +15,20 @@ const NAV_ITEMS = [
     ),
   },
   {
+    label: "店舗管理",
+    href: "/admin/stores",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+  },
+  {
     label: "QRコード管理",
     href: "/admin/qr",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4v1m6 11h2m-6 0a2 2 0 104 0m-4 0a2 2 0 114 0m-8 4v1m0-1a2 2 0 10-4 0m4 0a2 2 0 11-4 0m0-6H4m6-6v1m0-1a2 2 0 10-4 0m4 0a2 2 0 11-4 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-      </svg>
-    ),
-  },
-  {
-    label: "店舗管理",
-    href: "/admin/stores/golf-a",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
   },
@@ -50,6 +50,17 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
+  const handleLogout = async () => {
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      window.location.href = "/admin/login";
+    } catch {
+      window.location.href = "/admin/login";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-canvas text-text-primary flex flex-col md:flex-row">
       {/* デスクトップ：サイドバー */}
@@ -68,7 +79,7 @@ export default function AdminLayout({
             const isActive =
               item.href === "/admin"
                 ? pathname === "/admin"
-                : pathname.startsWith(item.href.replace(/\/golf-a$/, ""));
+                : pathname.startsWith(item.href);
 
             return (
               <Link
@@ -89,17 +100,25 @@ export default function AdminLayout({
           })}
         </nav>
 
-        <div className="p-4 border-t border-border-subtle">
+        <div className="p-4 border-t border-border-subtle space-y-2">
           <Link
-            href="/survey/golf-a"
-            target="_blank"
-            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-brand-light transition-all pressable"
+            href="/admin/stores"
+            className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-brand-light transition-all pressable"
           >
-            <span>アンケート画面を開く</span>
+            <span>アンケート画面一覧</span>
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-all pressable"
+          >
+            <span>ログアウト</span>
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
         </div>
       </aside>
 
@@ -109,16 +128,19 @@ export default function AdminLayout({
           <Link href="/admin" className="pressable">
             <Logo size={26} />
           </Link>
-          <span className="text-[11px] font-bold text-text-tertiary bg-surface-secondary px-2.5 py-0.5 rounded-full border border-border-subtle">
-            管理画面
-          </span>
+          <button
+            onClick={handleLogout}
+            className="text-[11px] font-bold text-red-600 bg-surface-secondary px-2.5 py-0.5 rounded-full border border-border-subtle"
+          >
+            ログアウト
+          </button>
         </div>
         <nav className="flex px-3 pb-2 gap-1 overflow-x-auto no-scrollbar">
           {NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/admin"
                 ? pathname === "/admin"
-                : pathname.startsWith(item.href.replace(/\/golf-a$/, ""));
+                : pathname.startsWith(item.href);
 
             return (
               <Link

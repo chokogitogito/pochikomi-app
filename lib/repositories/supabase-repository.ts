@@ -331,6 +331,249 @@ export async function cleanupExpiredGbpCacheFromSupabase(): Promise<{ deleted_re
   };
 }
 
+/**
+ * 店舗設定をSupabaseへ保存・更新
+ */
+export async function saveStoreToSupabase(input: Store): Promise<Store> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createAdminClient() as any;
+  const location = await findLocationBySlug(supabase, input.id);
+
+  if (!location) {
+    throw new Error(`Store not found: ${input.id}`);
+  }
+
+  const { data, error } = await supabase
+    .from("locations")
+    .update({
+      name: input.name,
+      category: input.category,
+      google_maps_review_url: input.googleMapsUrl,
+      keywords: input.keywords,
+      survey_options: input.surveyOptions as unknown as Record<string, unknown>,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", location.id)
+    .select()
+    .single();
+
+  if (error || !data) {
+    console.error("[supabase-repo] saveStore error:", error);
+    throw new Error(error?.message || "Failed to update store in Supabase");
+  }
+
+  return mapLocationToStore(data as unknown as RawLocation);
+}
+
+/**
+ * クーポンをIDまたは店舗slugから取得
+ */
+export async function getCouponFromSupabase(couponId: string): Promise<Coupon | null> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createAdminClient() as any;
+
+  // 1. まずクーポンUUIDまたはIDで直接検索
+  const { data: directCoupon } = await supabase
+    .from("coupons")
+    .select("*, locations!inner(public_slug)")
+    .eq("id", couponId)
+    .maybeSingle();
+
+  if (directCoupon) {
+    const raw = directCoupon as unknown as RawCoupon;
+    return {
+      id: raw.id,
+      storeId: raw.locations?.public_slug || "",
+      title: raw.title,
+      description: raw.description,
+      expiresInDays: 30,
+      issuedCount: 0,
+      active: raw.is_active,
+    };
+  }
+
+  // 2. 店舗slugに紐づく有効クーポンを検索
+  const location = await findLocationBySlug(supabase, couponId);
+  if (location) {
+    const { data: locCoupon } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("location_id", location.id)
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
+
+    if (locCoupon) {
+      const raw = locCoupon as unknown as RawCoupon;
+      return {
+        id: raw.id,
+        storeId: location.public_slug,
+        title: raw.title,
+        description: raw.description,
+        expiresInDays: 30,
+        issuedCount: 0,
+        active: raw.is_active,
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * クーポン設定をSupabaseへ保存・更新
+ */
+export async function saveCouponToSupabase(input: Coupon): Promise<Coupon> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createAdminClient() as any;
+  const location = await findLocationBySlug(supabase, input.storeId);
+
+  if (!location) {
+    throw new Error(`Store not found for coupon: ${input.storeId}`);
+  }
+
+  // 1. input.id がUUID形式であれば直接IDで検索し、自店舗に属しているかを厳格検証
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.id || "");
+  let existingCouponId: string | null = null;
+
+  if (isUuid) {
+    const { data: byId } = await supabase
+      .from("coupons")
+      .select("id, location_id")
+      .eq("id", input.id)
+      .maybeSingle();
+    if (byId) {
+      if ((byId as { location_id: string }).location_id !== location.id) {
+        throw new Error(`Cross-tenant violation: coupon ${input.id} does not belong to store ${input.storeId}`);
+      }
+      existingCouponId = (byId as { id: string }).id;
+    }
+  }
+
+  // 2. IDで特定できなければ店舗の代表クーポンを検索
+  if (!existingCouponId) {
+    const { data: byLoc } = await supabase
+      .from("coupons")
+      .select("id")
+      .eq("location_id", location.id)
+      .maybeSingle();
+    if (byLoc) {
+      existingCouponId = (byLoc as { id: string }).id;
+    }
+  }
+
+  if (existingCouponId) {
+    // 既存クーポン更新
+    const { data, error } = await supabase
+      .from("coupons")
+      .update({
+        title: input.title,
+        description: input.description,
+        is_active: Boolean(input.active),
+        badge_text: "特典",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingCouponId)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.error("[supabase-repo] saveCoupon update error:", error);
+      throw new Error(error?.message || "Failed to update coupon in Supabase");
+    }
+
+    const raw = data as unknown as RawCoupon;
+    return {
+      id: raw.id,
+      storeId: location.public_slug,
+      title: raw.title,
+      description: raw.description,
+      expiresInDays: Number(input.expiresInDays) || 30,
+      issuedCount: Number(input.issuedCount) || 0,
+      active: raw.is_active,
+    };
+  } else {
+    // 新規クーポン作成
+    const { data, error } = await supabase
+      .from("coupons")
+      .insert({
+        organization_id: location.organization_id,
+        location_id: location.id,
+        title: input.title,
+        description: input.description,
+        badge_text: "特典",
+        expiry_date: `${input.expiresInDays || 30}日後まで有効`,
+        is_active: Boolean(input.active),
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.error("[supabase-repo] saveCoupon insert error:", error);
+      throw new Error(error?.message || "Failed to insert coupon in Supabase");
+    }
+
+    const raw = data as unknown as RawCoupon;
+    return {
+      id: raw.id,
+      storeId: location.public_slug,
+      title: raw.title,
+      description: raw.description,
+      expiresInDays: Number(input.expiresInDays) || 30,
+      issuedCount: 0,
+      active: raw.is_active,
+    };
+  }
+}
+
+/**
+ * ログインユーザーが管理可能な店舗一覧を取得
+ */
+export async function getUserManagedLocations(userId: string): Promise<Store[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createAdminClient() as any;
+
+  // プラットフォーム管理者の判定
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_platform_admin")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if ((profile as { is_platform_admin: boolean } | null)?.is_platform_admin) {
+    return getStoresFromSupabase();
+  }
+
+  // 所属組織を取得
+  const { data: members, error: memErr } = await supabase
+    .from("organization_members")
+    .select("organization_id")
+    .eq("user_id", userId)
+    .eq("status", "active");
+
+  const memberList = (members || []) as Array<{ organization_id: string }>;
+
+  if (memErr || memberList.length === 0) {
+    return [];
+  }
+
+  const orgIds = memberList.map((m) => m.organization_id);
+
+  const { data: locations, error: locErr } = await supabase
+    .from("locations")
+    .select("*")
+    .in("organization_id", orgIds)
+    .eq("is_active", true)
+    .order("created_at", { ascending: true });
+
+  if (locErr || !locations) {
+    console.error("[supabase-repo] getUserManagedLocations error:", locErr);
+    return [];
+  }
+
+  return (locations as unknown as RawLocation[]).map(mapLocationToStore);
+}
+
 function mapLocationToStore(loc: RawLocation): Store {
   const options = (loc.survey_options || {}) as {
     sources?: string[];

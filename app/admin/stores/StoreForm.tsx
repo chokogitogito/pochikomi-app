@@ -78,13 +78,13 @@ export default function StoreForm({
         <TextField
           label="店舗名"
           value={store.name}
-          placeholder="例: ○○ゴルフ倶楽部 / ○○カントリークラブ"
+          placeholder="例: ゴルフコンディショニングスタジオ宇都宮 The蔵ssic"
           onChange={(value) => update("name", value)}
         />
         <TextField
           label="業種"
           value={store.category}
-          placeholder="例: ゴルフ場 / ゴルフコース / カントリークラブ"
+          placeholder="例: インドアゴルフスタジオ / ゴルフスクール / 練習場"
           onChange={(value) => update("category", value)}
         />
         <label className="block text-sm font-bold text-slate-700">

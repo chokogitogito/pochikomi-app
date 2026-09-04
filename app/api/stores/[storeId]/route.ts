@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrimaryCoupon, getStore, saveStore } from "@/lib/db";
+import { verifyAdminAuth } from "@/lib/auth/guard";
 import type { Store } from "@/lib/types";
 
 export async function GET(
@@ -22,6 +23,16 @@ export async function PUT(
   { params }: { params: Promise<{ storeId: string }> }
 ) {
   const { storeId } = await params;
+
+  // 店舗管理者権限の検証
+  const auth = await verifyAdminAuth(storeId);
+  if (!auth.authorized) {
+    return NextResponse.json(
+      { error: auth.error || "Forbidden" },
+      { status: auth.status || 403 }
+    );
+  }
+
   const body = (await req.json()) as Store;
   const store = await saveStore({ ...body, id: storeId });
   return NextResponse.json({ store });
