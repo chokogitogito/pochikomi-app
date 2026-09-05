@@ -55,12 +55,45 @@ export default async function AdminDashboardPage() {
     totalMetrics.averageRating = Math.round((ratingSum / ratingCount) * 10) / 10;
   }
 
+  // 各店舗の未返信口コミ件数を集計（サーバー側事前集計）
+  let totalUnrepliedCount = 0;
+  let unrepliedCounts: Record<string, number> = {};
+  try {
+    const { getUnrepliedReviewCount } = await import("@/lib/repositories/review-repository");
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const admin = createAdminClient() as any;
+
+    const countResults = await Promise.all(
+      stores.map(async (store) => {
+        const { data: loc } = await admin
+          .from("locations")
+          .select("id")
+          .eq("public_slug", store.id)
+          .maybeSingle();
+
+        if (loc?.id) {
+          const count = await getUnrepliedReviewCount(loc.id);
+          return { storeId: store.id, count };
+        }
+        return { storeId: store.id, count: 0 };
+      })
+    );
+
+    unrepliedCounts = Object.fromEntries(countResults.map((r) => [r.storeId, r.count]));
+    totalUnrepliedCount = countResults.reduce((sum, r) => sum + r.count, 0);
+  } catch (err) {
+    console.error("[AdminDashboardPage] 未返信件数の集計エラー:", err);
+  }
+
   return (
     <AdminDashboardClient
       stores={stores}
       metricsMap={metricsMap}
       totalMetrics={totalMetrics}
       isDemoUser={false}
+      totalUnrepliedCount={totalUnrepliedCount}
+      unrepliedCounts={unrepliedCounts}
     />
   );
 }

@@ -335,8 +335,10 @@ export interface Database {
           star_rating: number | null;
           comment: string | null;
           review_created_at: string | null;
+          source: 'gbp' | 'places' | 'manual' | 'fixture';
           fetched_at: string;
           expires_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -346,8 +348,10 @@ export interface Database {
           star_rating?: number | null;
           comment?: string | null;
           review_created_at?: string | null;
+          source?: 'gbp' | 'places' | 'manual' | 'fixture';
           fetched_at?: string;
           expires_at: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
@@ -357,8 +361,127 @@ export interface Database {
           star_rating?: number | null;
           comment?: string | null;
           review_created_at?: string | null;
+          source?: 'gbp' | 'places' | 'manual' | 'fixture';
           fetched_at?: string;
           expires_at?: string;
+          updated_at?: string;
+        };
+      };
+      review_reply_drafts: {
+        Row: {
+          id: string;
+          organization_id: string;
+          location_id: string;
+          external_review_id: string;
+          tone: 'polite' | 'standard' | 'friendly';
+          draft_text: string;
+          model: string;
+          prompt_version: string;
+          generated_by: string | null;
+          fetched_at: string;
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          location_id: string;
+          external_review_id: string;
+          tone: 'polite' | 'standard' | 'friendly';
+          draft_text: string;
+          model?: string;
+          prompt_version?: string;
+          generated_by?: string | null;
+          fetched_at?: string;
+          expires_at: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          location_id?: string;
+          external_review_id?: string;
+          tone?: 'polite' | 'standard' | 'friendly';
+          draft_text?: string;
+          model?: string;
+          prompt_version?: string;
+          generated_by?: string | null;
+          fetched_at?: string;
+          expires_at?: string;
+          created_at?: string;
+        };
+      };
+      review_reply_records: {
+        Row: {
+          id: string;
+          organization_id: string;
+          location_id: string;
+          review_ref_hash: string;
+          status: 'unreplied' | 'drafted' | 'replied' | 'ignored';
+          first_seen_at: string;
+          seen_at: string | null;
+          replied_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          location_id: string;
+          review_ref_hash: string;
+          status?: 'unreplied' | 'drafted' | 'replied' | 'ignored';
+          first_seen_at?: string;
+          seen_at?: string | null;
+          replied_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          location_id?: string;
+          review_ref_hash?: string;
+          status?: 'unreplied' | 'drafted' | 'replied' | 'ignored';
+          first_seen_at?: string;
+          seen_at?: string | null;
+          replied_at?: string | null;
+          updated_at?: string;
+        };
+      };
+      review_reply_settings: {
+        Row: {
+          id: string;
+          organization_id: string;
+          location_id: string;
+          store_call_name: string;
+          signature: string;
+          tone_default: 'polite' | 'standard' | 'friendly';
+          ng_words: string[];
+          policy_note: string;
+          review_source: 'fixture' | 'manual' | 'places' | 'gbp';
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          location_id: string;
+          store_call_name?: string;
+          signature?: string;
+          tone_default?: 'polite' | 'standard' | 'friendly';
+          ng_words?: string[];
+          policy_note?: string;
+          review_source?: 'fixture' | 'manual' | 'places' | 'gbp';
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          location_id?: string;
+          store_call_name?: string;
+          signature?: string;
+          tone_default?: 'polite' | 'standard' | 'friendly';
+          ng_words?: string[];
+          policy_note?: string;
+          review_source?: 'fixture' | 'manual' | 'places' | 'gbp';
+          updated_at?: string;
         };
       };
       gbp_performance_cache: {

@@ -11,6 +11,8 @@ interface AdminDashboardClientProps {
   metricsMap: Record<string, StoreMetrics>;
   totalMetrics: StoreMetrics;
   isDemoUser?: boolean;
+  totalUnrepliedCount?: number;
+  unrepliedCounts?: Record<string, number>;
 }
 
 export default function AdminDashboardClient({
@@ -18,8 +20,15 @@ export default function AdminDashboardClient({
   metricsMap,
   totalMetrics,
   isDemoUser = false,
+  totalUnrepliedCount = 0,
+  unrepliedCounts = {},
 }: AdminDashboardClientProps) {
   const [selectedStoreId, setSelectedStoreId] = useState<string>("all");
+
+  const activeUnrepliedCount =
+    selectedStoreId === "all"
+      ? totalUnrepliedCount
+      : unrepliedCounts[selectedStoreId] || 0;
 
   const currentMetrics =
     selectedStoreId === "all"
@@ -102,6 +111,41 @@ export default function AdminDashboardClient({
           ))}
         </div>
       </div>
+
+      {/* 未返信口コミアラートカード */}
+      {activeUnrepliedCount > 0 && (
+        <div className="bg-brand-light border border-brand/20 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shrink-0 shadow-xs">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm md:text-base font-bold text-text-primary">
+                  未返信の口コミが <span className="text-brand font-extrabold text-base md:text-lg">{activeUnrepliedCount}</span> 件あります
+                </h3>
+                <span className="text-[10px] font-bold text-brand uppercase bg-surface px-2 py-0.5 rounded-full border border-brand/20">
+                  要対応
+                </span>
+              </div>
+              <p className="text-xs text-text-secondary mt-0.5">
+                AI返信下書きを3案自動生成し、Googleマップへすばやく丁寧な返信を投稿できます。
+              </p>
+            </div>
+          </div>
+          <Link
+            href={selectedStoreId === "all" ? "/admin/reviews" : `/admin/reviews?storeId=${selectedStoreId}`}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand text-white text-xs font-bold shadow-xs hover:bg-brand-dark transition-all pressable shrink-0 self-start sm:self-center"
+          >
+            <span>口コミ返信を開く</span>
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           1. 口コミ獲得成果（ポチコミ運用ファネル：実データ計測）

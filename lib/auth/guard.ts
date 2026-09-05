@@ -6,6 +6,7 @@ export interface AuthGuardResult {
   authorized: boolean;
   userId?: string;
   organizationId?: string;
+  locationId?: string;
   role?: string;
   error?: string;
   status?: number;
@@ -53,6 +54,33 @@ export async function verifyAdminAuth(targetStoreId?: string): Promise<AuthGuard
     .maybeSingle();
 
   if ((profile as ProfileRow | null)?.is_platform_admin) {
+    if (targetStoreId) {
+      const safeSlug = validateAndNormalizeSlug(targetStoreId);
+      let locData: { id: string; organization_id: string } | null = null;
+      if (safeSlug) {
+        const primary = await adminClient
+          .from("locations")
+          .select("id, organization_id")
+          .eq("public_slug", safeSlug)
+          .maybeSingle();
+        locData = primary.data;
+        if (!locData) {
+          const legacy = await adminClient
+            .from("locations")
+            .select("id, organization_id")
+            .contains("legacy_slugs", [safeSlug])
+            .maybeSingle();
+          locData = legacy.data;
+        }
+      }
+      return {
+        authorized: true,
+        userId: user.id,
+        role: "platform_admin",
+        organizationId: locData?.organization_id,
+        locationId: locData?.id,
+      };
+    }
     return {
       authorized: true,
       userId: user.id,
@@ -127,6 +155,7 @@ export async function verifyAdminAuth(targetStoreId?: string): Promise<AuthGuard
       authorized: true,
       userId: user.id,
       organizationId: loc.organization_id,
+      locationId: loc.id,
       role: targetMember.role,
     };
   }

@@ -316,18 +316,29 @@ export async function getMetricsFromSupabase(storeId: string): Promise<StoreMetr
   };
 }
 
-export async function cleanupExpiredGbpCacheFromSupabase(): Promise<{ deleted_reviews: number; deleted_performance_metrics: number }> {
+export async function cleanupExpiredGbpCacheFromSupabase(): Promise<{
+  deleted_reviews: number;
+  deleted_performance_metrics: number;
+  deleted_reply_drafts: number;
+}> {
   const supabase = createAdminClient();
   const { data, error } = await (supabase.rpc as unknown as (fn: string) => Promise<{ data: unknown; error: unknown }>)("cleanup_expired_gbp_cache");
 
   if (error) {
     console.error("[supabase-repo] cleanupExpiredGbpCache error:", error);
-    return { deleted_reviews: 0, deleted_performance_metrics: 0 };
+    return { deleted_reviews: 0, deleted_performance_metrics: 0, deleted_reply_drafts: 0 };
   }
 
-  return (data as { deleted_reviews: number; deleted_performance_metrics: number }) || {
-    deleted_reviews: 0,
-    deleted_performance_metrics: 0,
+  const result = data as {
+    deleted_reviews?: number;
+    deleted_performance_metrics?: number;
+    deleted_reply_drafts?: number;
+  };
+
+  return {
+    deleted_reviews: result?.deleted_reviews ?? 0,
+    deleted_performance_metrics: result?.deleted_performance_metrics ?? 0,
+    deleted_reply_drafts: result?.deleted_reply_drafts ?? 0,
   };
 }
 
