@@ -2,6 +2,24 @@
 -- 18 ポチコミ: 口コミ受信箱・AI返信下書き機能 スキーマ & RLS & TTL関数拡張
 -- ─────────────────────────────────────────────────────────────
 
+-- 0. RLSヘルパー関数 (未定義の場合の安全策)
+create or replace function public.auth_user_is_org_admin(org_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+    select exists (
+        select 1
+        from public.organization_members
+        where organization_id = org_id
+          and user_id = auth.uid()
+          and role in ('owner', 'admin')
+          and status = 'active'
+    ) or public.auth_is_platform_admin();
+$$;
+
 -- 1. 既存テーブル gbp_review_cache の拡張
 alter table public.gbp_review_cache
     add column if not exists source text not null default 'gbp'
@@ -71,103 +89,55 @@ alter table public.review_reply_records enable row level security;
 alter table public.review_reply_settings enable row level security;
 
 -- review_reply_drafts ポリシー
-create policy "review_reply_drafts_select" on public.review_reply_drafts
+drop policy if exists "review_reply_drafts_select" on public.review_reply_drafts;
+drop policy if exists "review_reply_drafts_insert" on public.review_reply_drafts;
+drop policy if exists "review_reply_drafts_update" on public.review_reply_drafts;
+drop policy if exists "review_reply_drafts_delete" on public.review_reply_drafts;
+drop policy if exists "review_reply_drafts_select_member" on public.review_reply_drafts;
+drop policy if exists "review_reply_drafts_modify_admin" on public.review_reply_drafts;
+
+create policy "review_reply_drafts_select_member" on public.review_reply_drafts
     for select to authenticated
-    using (
-        organization_id in (select public.auth_user_organization_ids())
-        or public.auth_is_platform_admin()
-    );
+    using (organization_id in (select public.auth_user_organization_ids()) or public.auth_is_platform_admin());
 
-create policy "review_reply_drafts_insert" on public.review_reply_drafts
-    for insert to authenticated
-    with check (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
-
-create policy "review_reply_drafts_update" on public.review_reply_drafts
-    for update to authenticated
-    using (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    )
-    with check (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
-
-create policy "review_reply_drafts_delete" on public.review_reply_drafts
-    for delete to authenticated
-    using (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
+create policy "review_reply_drafts_modify_admin" on public.review_reply_drafts
+    for all to authenticated
+    using (public.auth_user_is_org_admin(organization_id))
+    with check (public.auth_user_is_org_admin(organization_id));
 
 -- review_reply_records ポリシー
-create policy "review_reply_records_select" on public.review_reply_records
+drop policy if exists "review_reply_records_select" on public.review_reply_records;
+drop policy if exists "review_reply_records_insert" on public.review_reply_records;
+drop policy if exists "review_reply_records_update" on public.review_reply_records;
+drop policy if exists "review_reply_records_delete" on public.review_reply_records;
+drop policy if exists "review_reply_records_select_member" on public.review_reply_records;
+drop policy if exists "review_reply_records_modify_admin" on public.review_reply_records;
+
+create policy "review_reply_records_select_member" on public.review_reply_records
     for select to authenticated
-    using (
-        organization_id in (select public.auth_user_organization_ids())
-        or public.auth_is_platform_admin()
-    );
+    using (organization_id in (select public.auth_user_organization_ids()) or public.auth_is_platform_admin());
 
-create policy "review_reply_records_insert" on public.review_reply_records
-    for insert to authenticated
-    with check (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
-
-create policy "review_reply_records_update" on public.review_reply_records
-    for update to authenticated
-    using (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    )
-    with check (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
-
-create policy "review_reply_records_delete" on public.review_reply_records
-    for delete to authenticated
-    using (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
+create policy "review_reply_records_modify_admin" on public.review_reply_records
+    for all to authenticated
+    using (public.auth_user_is_org_admin(organization_id))
+    with check (public.auth_user_is_org_admin(organization_id));
 
 -- review_reply_settings ポリシー
-create policy "review_reply_settings_select" on public.review_reply_settings
+drop policy if exists "review_reply_settings_select" on public.review_reply_settings;
+drop policy if exists "review_reply_settings_insert" on public.review_reply_settings;
+drop policy if exists "review_reply_settings_update" on public.review_reply_settings;
+drop policy if exists "review_reply_settings_delete" on public.review_reply_settings;
+drop policy if exists "review_reply_settings_select_member" on public.review_reply_settings;
+drop policy if exists "review_reply_settings_modify_admin" on public.review_reply_settings;
+
+create policy "review_reply_settings_select_member" on public.review_reply_settings
     for select to authenticated
-    using (
-        organization_id in (select public.auth_user_organization_ids())
-        or public.auth_is_platform_admin()
-    );
+    using (organization_id in (select public.auth_user_organization_ids()) or public.auth_is_platform_admin());
 
-create policy "review_reply_settings_insert" on public.review_reply_settings
-    for insert to authenticated
-    with check (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
-
-create policy "review_reply_settings_update" on public.review_reply_settings
-    for update to authenticated
-    using (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    )
-    with check (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
-
-create policy "review_reply_settings_delete" on public.review_reply_settings
-    for delete to authenticated
-    using (
-        public.auth_user_is_org_admin(organization_id)
-        or public.auth_is_platform_admin()
-    );
+create policy "review_reply_settings_modify_admin" on public.review_reply_settings
+    for all to authenticated
+    using (public.auth_user_is_org_admin(organization_id))
+    with check (public.auth_user_is_org_admin(organization_id));
 
 -- 6. cleanup_expired_gbp_cache() 関数の拡張 (review_reply_drafts の30日削除を追加)
 create or replace function public.cleanup_expired_gbp_cache()
