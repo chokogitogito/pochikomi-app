@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import meoData from "@/data/meo-diagnosis.json";
 import { CompetitorScatterChart, GbpTrendChart, FunnelChart } from "@/components/admin/MeoCharts";
-import type { Store, StoreMetrics } from "@/lib/types";
+import type { Store, StoreMetrics, FunnelMetricsSummary } from "@/lib/types";
 
 interface AdminDashboardClientProps {
   stores: Store[];
@@ -13,6 +13,10 @@ interface AdminDashboardClientProps {
   isDemoUser?: boolean;
   totalUnrepliedCount?: number;
   unrepliedCounts?: Record<string, number>;
+  funnelComparison?: {
+    totalSummary?: FunnelMetricsSummary;
+    locationSummaries?: FunnelMetricsSummary[];
+  };
 }
 
 export default function AdminDashboardClient({
@@ -22,6 +26,7 @@ export default function AdminDashboardClient({
   isDemoUser = false,
   totalUnrepliedCount = 0,
   unrepliedCounts = {},
+  funnelComparison,
 }: AdminDashboardClientProps) {
   const [selectedStoreId, setSelectedStoreId] = useState<string>("all");
 
@@ -151,16 +156,19 @@ export default function AdminDashboardClient({
           1. 口コミ獲得成果（ポチコミ運用ファネル：実データ計測）
       ───────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 className="text-lg font-bold text-text-primary">
-              1. 口コミ獲得成果（ポチコミ運用実績）
-            </h2>
-            <p className="text-xs text-text-tertiary">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-text-primary">
+                1. 口コミ獲得成果（ポチコミ運用実績）
+              </h2>
+              <ProvenanceBadge provenance="live" label="実測データ (live)" />
+            </div>
+            <p className="text-xs text-text-tertiary mt-0.5">
               来店客の卓上QR読み取りから、AI口コミ文章生成・Googleマップ投稿画面への遷移実績
             </p>
           </div>
-          <span className="text-[11px] font-semibold text-brand bg-brand-light px-2.5 py-0.5 rounded-full">
+          <span className="text-[11px] font-semibold text-brand bg-brand-light px-2.5 py-0.5 rounded-full self-start sm:self-auto">
             実稼働中
           </span>
         </div>
@@ -261,10 +269,67 @@ export default function AdminDashboardClient({
             </div>
           </div>
         </div>
+
+        {/* 多店舗ファネル実績比較テーブル（Phase 1: 多店舗集約） */}
+        {funnelComparison && funnelComparison.locationSummaries && funnelComparison.locationSummaries.length > 0 && (
+          <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <h3 className="text-sm font-bold text-text-primary">
+                  拠点別ファネル転換率比較（多店舗集約）
+                </h3>
+                <p className="text-[11px] text-text-tertiary">
+                  全店舗合算および拠点ごとのアンケート開始・口コミ作成・Google遷移・クーポン発行実績
+                </p>
+              </div>
+              <ProvenanceBadge provenance="live" label="実測集計" />
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead>
+                  <tr className="border-b border-border-subtle text-text-tertiary">
+                    <th className="py-2.5 px-3 font-bold">店舗 / 拠点</th>
+                    <th className="py-2.5 px-2 text-right font-bold">開始数</th>
+                    <th className="py-2.5 px-2 text-right font-bold">AI作成数</th>
+                    <th className="py-2.5 px-2 text-right font-bold">作成率</th>
+                    <th className="py-2.5 px-2 text-right font-bold">マップ遷移</th>
+                    <th className="py-2.5 px-2 text-right font-bold">遷移率</th>
+                    <th className="py-2.5 px-2 text-right font-bold">クーポン発行</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {funnelComparison.totalSummary && (
+                    <tr className="bg-surface-secondary/70 font-bold">
+                      <td className="py-2.5 px-3 text-text-primary">全店舗合算 (Total)</td>
+                      <td className="py-2.5 px-2 text-right">{funnelComparison.totalSummary.surveyStarts}件</td>
+                      <td className="py-2.5 px-2 text-right">{funnelComparison.totalSummary.generatedReviews}件</td>
+                      <td className="py-2.5 px-2 text-right text-brand">{funnelComparison.totalSummary.generationRate}%</td>
+                      <td className="py-2.5 px-2 text-right">{funnelComparison.totalSummary.reviewClicks}件</td>
+                      <td className="py-2.5 px-2 text-right text-brand">{funnelComparison.totalSummary.clickRate}%</td>
+                      <td className="py-2.5 px-2 text-right">{funnelComparison.totalSummary.couponsIssued}件</td>
+                    </tr>
+                  )}
+                  {funnelComparison.locationSummaries.map((loc) => (
+                    <tr key={loc.locationId || loc.storeSlug} className="hover:bg-surface-secondary/40">
+                      <td className="py-2.5 px-3 text-text-primary font-medium">{loc.storeName || loc.storeSlug}</td>
+                      <td className="py-2.5 px-2 text-right">{loc.surveyStarts}件</td>
+                      <td className="py-2.5 px-2 text-right">{loc.generatedReviews}件</td>
+                      <td className="py-2.5 px-2 text-right text-brand font-semibold">{loc.generationRate}%</td>
+                      <td className="py-2.5 px-2 text-right">{loc.reviewClicks}件</td>
+                      <td className="py-2.5 px-2 text-right text-brand font-semibold">{loc.clickRate}%</td>
+                      <td className="py-2.5 px-2 text-right">{loc.couponsIssued}件</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. Googleビジネスプロフィール集客パフォーマンス分析（参考デモ）
+          2. Googleビジネスプロフィール集客パフォーマンス分析（参考デモ・推計モデル）
       ───────────────────────────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
@@ -273,12 +338,11 @@ export default function AdminDashboardClient({
               <h2 className="text-lg font-bold text-text-primary">
                 2. Googleマップ集客パフォーマンス分析
               </h2>
-              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                【参考デモ】GBP API連携準備中
-              </span>
+              <ProvenanceBadge provenance="demo" label="参考デモ (demo)" />
+              <ProvenanceBadge provenance="estimated" label="推計モデル (estimated)" />
             </div>
-            <p className="text-xs text-text-tertiary">
-              Googleビジネスプロフィール公式データ連携による、検索露出と来店行動の連動推移（※公式API接続後に実データへ自動移行）
+            <p className="text-xs text-text-tertiary mt-0.5">
+              ※Google Business Profile API審査待ちのため、以下はシミュレーション用モデル値です（審査通過後に実APIデータへ自動切替）。
             </p>
           </div>
           <span className="text-[11px] text-text-tertiary">
@@ -289,55 +353,70 @@ export default function AdminDashboardClient({
         {/* GBP インサイトKPIカード */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
-            <p className="text-[11px] font-bold text-text-tertiary">月間マップ表示回数（参考）</p>
+            <div className="flex justify-between items-start">
+              <p className="text-[11px] font-bold text-text-tertiary">月間マップ表示回数</p>
+              <ProvenanceBadge provenance="demo" label="demo" />
+            </div>
             <p className="text-2xl font-bold text-text-primary mt-1">
               {currentGbp.monthlyViews.toLocaleString()}
               <span className="text-xs font-normal text-text-secondary ml-1">回</span>
             </p>
-            <p className="text-[10px] text-brand font-semibold mt-1">間接検索 {currentGbp.discoverySearchRatio}%</p>
+            <p className="text-[10px] text-text-tertiary font-medium mt-1">間接検索比率 {currentGbp.discoverySearchRatio}% (参考値)</p>
           </div>
 
           <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
-            <p className="text-[11px] font-bold text-text-tertiary">ルート検索（来店ナビ）</p>
+            <div className="flex justify-between items-start">
+              <p className="text-[11px] font-bold text-text-tertiary">ルート検索（来店ナビ）</p>
+              <ProvenanceBadge provenance="demo" label="demo" />
+            </div>
             <p className="text-2xl font-bold text-brand mt-1">
               {currentGbp.actions.directionRequests}
               <span className="text-xs font-normal text-text-secondary ml-1">回/月</span>
             </p>
-            <p className="text-[10px] text-text-tertiary mt-1">最も来店確度の高い行動</p>
+            <p className="text-[10px] text-text-tertiary mt-1">最も来店確度の高い行動 (参考値)</p>
           </div>
 
           <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
-            <p className="text-[11px] font-bold text-text-tertiary">ウェブサイト誘導</p>
+            <div className="flex justify-between items-start">
+              <p className="text-[11px] font-bold text-text-tertiary">ウェブサイト誘導</p>
+              <ProvenanceBadge provenance="demo" label="demo" />
+            </div>
             <p className="text-2xl font-bold text-text-primary mt-1">
               {currentGbp.actions.websiteClicks}
               <span className="text-xs font-normal text-text-secondary ml-1">回/月</span>
             </p>
-            <p className="text-[10px] text-text-tertiary mt-1">公式サイト予約へ流入</p>
+            <p className="text-[10px] text-text-tertiary mt-1">公式サイト予約へ流入 (参考値)</p>
           </div>
 
           <div className="bg-surface rounded-2xl p-4 border border-border-default shadow-card">
-            <p className="text-[11px] font-bold text-text-tertiary">直接通話（電話問い合わせ）</p>
+            <div className="flex justify-between items-start">
+              <p className="text-[11px] font-bold text-text-tertiary">直接通話（電話問い合わせ）</p>
+              <ProvenanceBadge provenance="demo" label="demo" />
+            </div>
             <p className="text-2xl font-bold text-text-primary mt-1">
               {currentGbp.actions.phoneCalls}
               <span className="text-xs font-normal text-text-secondary ml-1">回/月</span>
             </p>
-            <p className="text-[10px] text-text-tertiary mt-1">新規体験・予約の相談</p>
+            <p className="text-[10px] text-text-tertiary mt-1">新規体験・予約相談 (参考値)</p>
           </div>
         </div>
 
-        {/* 口コミ数とルート検索数の連動相関グラフ */}
+        {/* 口コミ数とルート検索数の推移シミュレーション（参考仮説モデル） */}
         <div className="bg-surface rounded-2xl p-6 border border-border-default shadow-card">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
             <div>
-              <h3 className="text-sm font-bold text-text-primary">
-                口コミ獲得ペースと「ルート検索数（来店）」の相関推移（モデルケース）
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-text-primary">
+                  口コミ獲得ペースとルート検索数の推移シミュレーション（参考仮説モデル）
+                </h3>
+                <ProvenanceBadge provenance="estimated" label="推計モデル" />
+              </div>
               <p className="text-xs text-text-secondary mt-0.5">
-                口コミが蓄積されるほどGoogleマップの露出が向上し、ルート検索（ナビ開始）が急増します。
+                ※過去実績に基づく仮説シミュレーションです。実際の集客数値はGoogle公式API承認後に実データ同期されます。
               </p>
             </div>
-            <span className="text-[11px] font-semibold text-brand bg-brand-light px-2.5 py-1 rounded-full shrink-0">
-              来店アクション約5.4倍成長モデル
+            <span className="text-[11px] font-semibold text-text-secondary bg-surface-secondary border border-border-subtle px-2.5 py-1 rounded-full shrink-0">
+              参考仮説モデルケース
             </span>
           </div>
           <GbpTrendChart trends={currentGbp.trends} />
@@ -350,10 +429,13 @@ export default function AdminDashboardClient({
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
-            <h2 className="text-lg font-bold text-text-primary">
-              3. MEO診断スコア分析（実診断データ）
-            </h2>
-            <p className="text-xs text-text-tertiary">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-text-primary">
+                3. MEO診断スコア分析（実診断データ）
+              </h2>
+              <ProvenanceBadge provenance="manual" label="外部診断取込 (manual)" />
+            </div>
+            <p className="text-xs text-text-tertiary mt-0.5">
               Googleビジネスプロフィール診断エンジン「76_meo-score」解析結果（診断日: {meoData.diagnosisDate}）
             </p>
           </div>
@@ -380,10 +462,13 @@ export default function AdminDashboardClient({
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
-            <h2 className="text-lg font-bold text-text-primary">
-              4. 競合分析（評価 × 口コミ数 散布図）
-            </h2>
-            <p className="text-xs text-text-tertiary">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-text-primary">
+                4. 競合分析（評価 × 口コミ数 散布図）
+              </h2>
+              <ProvenanceBadge provenance="manual" label="実地観測 (manual)" />
+            </div>
+            <p className="text-xs text-text-tertiary mt-0.5">
               Googleマップ近隣競合実測データ（取得日: {meoData.competitorCheckDate}）
             </p>
           </div>
@@ -540,3 +625,51 @@ function DiagnosisCard({
     </div>
   );
 }
+
+export function ProvenanceBadge({
+  provenance,
+  label,
+}: {
+  provenance: "live" | "manual" | "fixture" | "demo" | "estimated" | "unavailable";
+  label?: string;
+}) {
+  const styles: Record<string, string> = {
+    live: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    manual: "bg-blue-50 text-blue-700 border-blue-200",
+    fixture: "bg-purple-50 text-purple-700 border-purple-200",
+    demo: "bg-amber-50 text-amber-800 border-amber-200",
+    estimated: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    unavailable: "bg-gray-100 text-gray-600 border-gray-200",
+  };
+
+  const defaultLabels: Record<string, string> = {
+    live: "実測 (live)",
+    manual: "手動 (manual)",
+    fixture: "テスト用 (fixture)",
+    demo: "参考デモ (demo)",
+    estimated: "推計 (estimated)",
+    unavailable: "未取得 (unavailable)",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+        styles[provenance] || styles.unavailable
+      }`}
+    >
+      <span
+        className={`w-1.5 h-1.5 rounded-full ${
+          provenance === "live"
+            ? "bg-emerald-500"
+            : provenance === "demo"
+            ? "bg-amber-500"
+            : provenance === "manual"
+            ? "bg-blue-500"
+            : "bg-gray-400"
+        }`}
+      />
+      <span>{label || defaultLabels[provenance]}</span>
+    </span>
+  );
+}
+

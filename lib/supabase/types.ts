@@ -148,6 +148,7 @@ export interface Database {
           id: string;
           organization_id: string;
           location_id: string;
+          campaign_id: string | null;
           started_at: string;
           completed_at: string | null;
           user_agent: string | null;
@@ -157,6 +158,7 @@ export interface Database {
           id?: string;
           organization_id: string;
           location_id: string;
+          campaign_id?: string | null;
           started_at?: string;
           completed_at?: string | null;
           user_agent?: string | null;
@@ -166,6 +168,7 @@ export interface Database {
           id?: string;
           organization_id?: string;
           location_id?: string;
+          campaign_id?: string | null;
           started_at?: string;
           completed_at?: string | null;
           user_agent?: string | null;
@@ -511,6 +514,53 @@ export interface Database {
           metric_value?: number;
           fetched_at?: string;
           expires_at?: string;
+        };
+      };
+      qr_campaigns: {
+        Row: {
+          id: string;
+          organization_id: string;
+          location_id: string;
+          public_id: string;
+          name: string;
+          placement: string;
+          medium: string;
+          staff_label: string | null;
+          start_at: string | null;
+          end_at: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          location_id: string;
+          public_id: string;
+          name: string;
+          placement?: string;
+          medium?: string;
+          staff_label?: string | null;
+          start_at?: string | null;
+          end_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          location_id?: string;
+          public_id?: string;
+          name?: string;
+          placement?: string;
+          medium?: string;
+          staff_label?: string | null;
+          start_at?: string | null;
+          end_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

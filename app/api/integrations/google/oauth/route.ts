@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GOOGLE_SCOPES } from "@/lib/integrations/google";
+import { GOOGLE_SCOPES, isGbpConnectionEnabled } from "@/lib/integrations/google";
 
 export async function GET(req: NextRequest) {
+  // GBP API審査待ち・機能フラグ無効時のfail closed
+  if (!isGbpConnectionEnabled()) {
+    return NextResponse.json(
+      {
+        error: "Google Business Profile API連携は現在審査待ちのため利用できません（審査通過後に有効化予定）。",
+        status: "pending_approval",
+      },
+      { status: 503 }
+    );
+  }
+
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || `${req.nextUrl.origin}/api/integrations/google/callback`;
 

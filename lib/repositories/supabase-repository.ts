@@ -175,7 +175,10 @@ export async function getPrimaryCouponFromSupabase(storeId: string): Promise<Cou
 /**
  * Supabaseでクーポンを発行し記録する（P2解消）
  */
-export async function issueCouponFromSupabase(storeId: string): Promise<Coupon | null> {
+export async function issueCouponFromSupabase(
+  storeId: string,
+  sessionId?: string | null
+): Promise<Coupon | null> {
   const supabase = createAdminClient();
   const location = await findLocationBySlug(supabase, storeId);
   if (!location) return null;
@@ -199,7 +202,7 @@ export async function issueCouponFromSupabase(storeId: string): Promise<Coupon |
   // クーポン発行履歴（coupon_issues）へ記録
   const issuePayload: Database["public"]["Tables"]["coupon_issues"]["Insert"] = {
     coupon_id: rawCoupon.id,
-    session_id: null,
+    session_id: sessionId ?? null,
   };
 
   const { error: issueErr } = await (
@@ -226,7 +229,8 @@ export async function issueCouponFromSupabase(storeId: string): Promise<Coupon |
 export async function recordEventToSupabase(
   storeId: string,
   type: string,
-  payload: Record<string, unknown> | null
+  payload: Record<string, unknown> | null,
+  sessionId?: string | null
 ): Promise<StoreEvent | null> {
   const supabase = createAdminClient();
   const location = await findLocationBySlug(supabase, storeId);
@@ -237,6 +241,7 @@ export async function recordEventToSupabase(
   const newEvent: Database["public"]["Tables"]["events"]["Insert"] = {
     organization_id: location.organization_id,
     location_id: location.id,
+    session_id: sessionId ?? null,
     event_type: type,
     metadata: (payload ?? {}) as Database["public"]["Tables"]["events"]["Insert"]["metadata"],
   };
@@ -253,10 +258,11 @@ export async function recordEventToSupabase(
     return null;
   }
 
-  const row = data as { id: string; event_type: string; metadata: Record<string, unknown>; occurred_at: string };
+  const row = data as { id: string; session_id?: string | null; event_type: string; metadata: Record<string, unknown>; occurred_at: string };
   return {
     id: row.id,
     storeId: location.public_slug,
+    sessionId: row.session_id,
     type: row.event_type,
     payload: row.metadata,
     receivedAt: row.occurred_at,

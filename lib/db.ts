@@ -211,10 +211,10 @@ export async function getPrimaryCoupon(storeId: string): Promise<Coupon | null> 
   return db.coupons.find((coupon) => coupon.storeId === storeId && coupon.active) ?? null;
 }
 
-export async function issueCoupon(storeId: string): Promise<Coupon | null> {
+export async function issueCoupon(storeId: string, sessionId?: string | null): Promise<Coupon | null> {
   if (isSupabaseConfigured()) {
     try {
-      const coupon = await issueCouponFromSupabase(storeId);
+      const coupon = await issueCouponFromSupabase(storeId, sessionId);
       if (coupon) return coupon;
     } catch (error) {
       console.error("[db] Supabase issueCoupon error, fallback to local:", error);
@@ -237,11 +237,12 @@ export async function issueCoupon(storeId: string): Promise<Coupon | null> {
 export async function recordEvent(
   storeId: string,
   type: string,
-  payload: Record<string, unknown> | null
+  payload: Record<string, unknown> | null,
+  sessionId?: string | null
 ): Promise<StoreEvent> {
   if (isSupabaseConfigured()) {
     try {
-      const supaEvent = await recordEventToSupabase(storeId, type, payload);
+      const supaEvent = await recordEventToSupabase(storeId, type, payload, sessionId);
       if (supaEvent) return supaEvent;
     } catch (err) {
       console.warn("[db] Supabase fallback to local db.json for recordEvent", err);

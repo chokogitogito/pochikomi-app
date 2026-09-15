@@ -2,12 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { cleanupExpiredGbpCacheFromSupabase } from "@/lib/repositories/supabase-repository";
 
 export async function GET(req: NextRequest) {
-  // CRON_SECRETによる保護（設定されている場合）
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // テスト環境で明示的にスキップが指定されている場合を除き、CRON_SECRET未設定または不一致は拒絶（fail closed）
+  const isTestBypass = process.env.NODE_ENV === "test" && process.env.ALLOW_CRON_TEST_BYPASS === "true";
+
+  if (!isTestBypass) {
+    if (!cronSecret) {
+      console.error("[cron/cleanup-gbp-cache] CRON_SECRET is not configured. Rejecting request (fail closed).");
+      return NextResponse.json(
+        { error: "Unauthorized: CRON_SECRET is not configured on the server." },
+        { status: 401 }
+      );
+    }
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   try {

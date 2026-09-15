@@ -244,5 +244,27 @@ describe("E2E & Integration Flow: 管理者認可・実店舗・URL互換性", (
         })
       ).rejects.toThrow("Cross-tenant violation");
     });
+
+    it("QRキャンペーン管理APIが未認証アクセスを401で遮断すること", async () => {
+      const { GET: getCampaigns } = await import("@/app/api/admin/campaigns/route");
+      const { NextRequest } = await import("next/server");
+      const req = new NextRequest("http://localhost:3000/api/admin/campaigns?storeId=golf-a");
+      const res = await getCampaigns(req);
+      expect(res.status).toBe(401);
+    });
+
+    it("ファネル集計APIが未認証アクセスを401で遮断すること", async () => {
+      const { GET: getFunnel } = await import("@/app/api/admin/funnel/route");
+      const { NextRequest } = await import("next/server");
+      // 特定店舗指定時
+      const reqWithStore = new NextRequest("http://localhost:3000/api/admin/funnel?storeId=golf-a");
+      const resWithStore = await getFunnel(reqWithStore);
+      expect(resWithStore.status).toBe(401);
+
+      // 全店舗合算時（storeId未指定・P1修正箇所の検証）
+      const reqAll = new NextRequest("http://localhost:3000/api/admin/funnel");
+      const resAll = await getFunnel(reqAll);
+      expect(resAll.status).toBe(401);
+    });
   });
 });

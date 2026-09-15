@@ -50,6 +50,7 @@ export type StoreMetrics = {
 export type StoreEvent = {
   id: string;
   storeId: string;
+  sessionId?: string | null;
   type: string;
   payload: Record<string, unknown> | null;
   receivedAt: string;
@@ -61,3 +62,12 @@ export type AppDb = {
   metrics: StoreMetrics[];
   events: StoreEvent[];
 };
+
+export type {
+  GbpConnectionStatus,
+  DataProvenance,
+  QrCampaign,
+  FunnelStageMetric,
+  FunnelMetricsSummary,
+} from "./integrations/types";
+

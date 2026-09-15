@@ -21,6 +21,19 @@ export async function POST(req: NextRequest) {
     const settings = await getReviewReplySettings(auth.organizationId, auth.locationId);
     const targetSource = source || settings.reviewSource;
 
+    if (targetSource === "gbp") {
+      const { isGbpConnectionEnabled } = await import("@/lib/integrations/google");
+      if (!isGbpConnectionEnabled()) {
+        return NextResponse.json(
+          {
+            error: "Google Business Profile API連携は現在審査待ちのため同期できません。",
+            status: "pending_approval",
+          },
+          { status: 503 }
+        );
+      }
+    }
+
     let reviews = [];
     if (targetSource === "fixture") {
       const fixtureSource = new FixtureReviewSource();

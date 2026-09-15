@@ -49,8 +49,15 @@ export default function SurveyPage() {
   const [copied, setCopied] = useState(false);
   const [issuedCoupon, setIssuedCoupon] = useState<IssuedCoupon | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
+    // URLからキャンペーンコード（?c=...）を取得
+    const campaignCode = typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("c")
+      : null;
+
+    // 店舗情報取得
     fetch(`/api/stores/${storeId}`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => {
@@ -62,6 +69,22 @@ export default function SurveyPage() {
         setActiveCoupon(null);
       })
       .finally(() => setLoadingStore(false));
+
+    // 匿名サーベイセッションの発行
+    fetch("/api/survey/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ storeId, campaignCode }),
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        if (data.sessionId) {
+          setSessionId(data.sessionId);
+        }
+      })
+      .catch((err) => {
+        console.warn("[survey] session init warning:", err);
+      });
   }, [storeId]);
 
   if (loadingStore) {
@@ -88,13 +111,11 @@ export default function SurveyPage() {
 
   const storeName = store.shortName || store.name;
 
-
-
   const logEvent = (type: string, payload?: Record<string, unknown>) => {
     fetch("/api/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ storeId, type, payload }),
+      body: JSON.stringify({ storeId, sessionId, type, payload }),
     }).catch(() => undefined);
   };
 
@@ -116,7 +137,7 @@ export default function SurveyPage() {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ storeId, source, menu, rating, selectedPoints, comment }),
+      body: JSON.stringify({ storeId, sessionId, source, menu, rating, selectedPoints, comment }),
     });
     const data = await res.json();
     const list: ReviewDraft[] = Array.isArray(data.drafts) ? data.drafts : [];
@@ -137,6 +158,7 @@ export default function SurveyPage() {
       logEvent("review_generated", { rating, selectedPoints, menu });
     } catch {
       setGenerateError(true);
+      logEvent("review_generation_failed", { rating, selectedPoints, menu });
     }
     setStep("result");
   };
@@ -148,6 +170,7 @@ export default function SurveyPage() {
       logEvent("review_generated", { rating, selectedPoints, menu, regenerated: true });
     } catch {
       setGenerateError(true);
+      logEvent("review_generation_failed", { rating, selectedPoints, menu, regenerated: true });
     } finally {
       setRegenerating(false);
     }
@@ -156,11 +179,17 @@ export default function SurveyPage() {
   const currentText = texts[activeTone] ?? "";
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(currentText).then(() => {
-      setCopied(true);
-      logEvent("review_copied", { tone: activeTone });
-      setTimeout(() => setCopied(false), 3000);
-    });
+    navigator.clipboard
+      .writeText(currentText)
+      .then(() => {
+        setCopied(true);
+        logEvent("review_copied", { tone: activeTone });
+        setTimeout(() => setCopied(false), 3000);
+      })
+      .catch((err) => {
+        console.warn("[survey] clipboard copy failed:", err);
+        logEvent("review_copy_failed", { tone: activeTone });
+      });
   };
 
   const issueCoupon = async () => {
@@ -169,7 +198,7 @@ export default function SurveyPage() {
       const res = await fetch("/api/coupons/issue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeId }),
+        body: JSON.stringify({ storeId, sessionId }),
       });
       const data = await res.json();
       setIssuedCoupon(data.coupon);

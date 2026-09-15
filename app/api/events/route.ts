@@ -7,11 +7,13 @@ const allowedEvents = new Set([
   "review_copied",
   "review_clicked",
   "coupon_issued",
+  "review_generation_failed",
+  "review_copy_failed",
 ]);
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { storeId, type, payload } = body;
+  const { storeId, sessionId, type, payload } = body;
 
   if (typeof storeId !== "string" || typeof type !== "string") {
     return NextResponse.json({ error: "storeId and type are required" }, { status: 400 });
@@ -21,7 +23,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unsupported event type" }, { status: 400 });
   }
 
-  const event = await recordEvent(storeId, type, payload ?? null);
+  const safeSessionId = typeof sessionId === "string" ? sessionId : null;
+  const event = await recordEvent(storeId, type, payload ?? null, safeSessionId);
 
   return NextResponse.json({ ok: true, event });
 }

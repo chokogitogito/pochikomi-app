@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import type { GbpConnectionStatus } from "@/lib/types";
 
 interface StoreSetting {
   id: string;
   name: string;
   placeId: string;
   reviewUrl: string;
-  isConnected: boolean;
+  connectionStatus: GbpConnectionStatus;
   lastSyncedAt: string;
 }
 
@@ -18,43 +19,24 @@ const INITIAL_STORES: StoreSetting[] = [
     name: "ゴルフコンディショニングスタジオ宇都宮 The蔵ssic",
     placeId: "ChIJq6cE-5BnH2ARkt6391zxpfE",
     reviewUrl: "https://search.google.com/local/writereview?placeid=ChIJq6cE-5BnH2ARkt6391zxpfE",
-    isConnected: true,
-    lastSyncedAt: "2026-09-04 09:30",
+    connectionStatus: "pending_approval",
+    lastSyncedAt: "未連携（API審査待ち）",
   },
   {
     id: "ss-grand",
     name: "SS.GRAND（エスエスグランド スクールオブゴルフ）",
     placeId: "ChIJS4v-189cH2ARWAD0JxG0qb8",
     reviewUrl: "https://search.google.com/local/writereview?placeid=ChIJS4v-189cH2ARWAD0JxG0qb8",
-    isConnected: true,
-    lastSyncedAt: "2026-09-04 09:30",
+    connectionStatus: "pending_approval",
+    lastSyncedAt: "未連携（API審査待ち）",
   },
 ];
 
 export default function AdminSettingsPage() {
-  const [stores, setStores] = useState<StoreSetting[]>(INITIAL_STORES);
+  const [stores] = useState<StoreSetting[]>(INITIAL_STORES);
   const [selectedStoreId, setSelectedStoreId] = useState<string>("classic");
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncSuccess, setSyncSuccess] = useState(false);
 
   const selectedStore = stores.find((s) => s.id === selectedStoreId) || stores[0];
-
-  const handleSyncNow = () => {
-    setIsSyncing(true);
-    setSyncSuccess(false);
-    setTimeout(() => {
-      setIsSyncing(false);
-      setSyncSuccess(true);
-      setStores((prev) =>
-        prev.map((s) =>
-          s.id === selectedStoreId
-            ? { ...s, lastSyncedAt: "2026-09-04 14:25（最新）" }
-            : s
-        )
-      );
-      setTimeout(() => setSyncSuccess(false), 4000);
-    }, 1500);
-  };
 
   return (
     <div className="p-5 md:p-8 max-w-4xl mx-auto space-y-8">
@@ -70,24 +52,24 @@ export default function AdminSettingsPage() {
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="inline-block text-[11px] font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full mb-1">
-              Google Business Profile API連携
+            <span className="inline-block text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mb-1">
+              Google Business Profile API: 審査結果待ち
             </span>
             <h1 className="text-2xl md:text-3xl font-bold text-text-primary display-heading">
               Googleビジネスプロフィール連携設定
             </h1>
             <p className="text-text-secondary text-xs md:text-sm mt-1">
-              店舗のGoogleアカウントと連携し、検索数・閲覧数・ルート案内・口コミデータを自動同期します。
+              Google公式APIとの連携状態を確認します。現在はAPI審査結果待ちのため自動同期・OAuth接続は無効化されています。
             </p>
           </div>
 
           <button
-            onClick={handleSyncNow}
-            disabled={isSyncing}
-            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-brand text-white text-xs font-bold shadow-xs hover:bg-brand-hover pressable transition-all flex items-center gap-2 shrink-0 disabled:opacity-50"
+            disabled
+            title="GBP API審査待ちのため同期は実行できません"
+            className="self-start sm:self-auto px-4 py-2 rounded-xl bg-surface-secondary text-text-tertiary border border-border-default text-xs font-bold shadow-xs cursor-not-allowed flex items-center gap-2 shrink-0 opacity-70"
           >
             <svg
-              className={`w-4 h-4 ${isSyncing ? "animate-spin" : ""}`}
+              className="w-4 h-4 text-text-tertiary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -96,21 +78,25 @@ export default function AdminSettingsPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
-            <span>{isSyncing ? "データ同期間中..." : "今すぐGoogle同期"}</span>
+            <span>同期停止中（審査待ち）</span>
           </button>
         </div>
 
-        {syncSuccess && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        {/* 審査待ちアナウンスバナー */}
+        <div className="mt-4 p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs leading-relaxed space-y-1">
+          <div className="flex items-center gap-2 font-bold">
+            <svg className="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Googleビジネスプロフィールから最新のパフォーマンスデータを正常に取得・更新しました。
+            <span>Google API審査待ち・現在利用不可</span>
           </div>
-        )}
+          <p className="text-amber-800 text-[11px]">
+            Google Business Profile APIへの本番アクセスは審査通過後に有効化されます。現在は誤接続を防ぐため、OAuth開始・トークン保存・直接同期を遮断（fail closed）しています。口コミ返信は「手動取り込み」機能で安全に下書き生成・コピー運用が可能です。
+          </p>
+        </div>
       </div>
 
       {/* 店舗切り替えタブ */}
@@ -138,45 +124,39 @@ export default function AdminSettingsPage() {
               1. Googleアカウント接続状態
             </h2>
             <p className="text-xs text-text-tertiary mt-0.5">
-              GBP管理権限を持つGoogleアカウントとのOAuth認証状況
+              Google Business Profile APIとの認可・接続状況
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            連携済み (Connected)
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            審査待ち (pending_approval)
           </span>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-4 text-xs">
           <div className="p-3.5 rounded-xl bg-surface-secondary">
             <span className="text-text-tertiary block mb-1">連携アカウント</span>
-            <span className="font-bold text-text-primary">sakai@the-classic-golf.jp</span>
+            <span className="font-bold text-text-secondary">未接続（API審査待ち）</span>
           </div>
           <div className="p-3.5 rounded-xl bg-surface-secondary">
             <span className="text-text-tertiary block mb-1">最終同期日時</span>
-            <span className="font-bold text-text-primary">{selectedStore.lastSyncedAt}</span>
+            <span className="font-bold text-text-secondary">{selectedStore.lastSyncedAt}</span>
           </div>
           <div className="p-3.5 rounded-xl bg-surface-secondary">
             <span className="text-text-tertiary block mb-1">同期ステータス</span>
-            <span className="font-bold text-emerald-600">正常稼働中 (日次自動同期)</span>
+            <span className="font-bold text-amber-700">機能無効（審査通過後に有効化）</span>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2.5 pt-2">
           <button
-            onClick={() => alert("Googleアカウント認証画面へリダイレクトします（デモ動作）")}
-            className="px-4 py-2 rounded-xl bg-surface border border-border-default text-xs font-bold text-text-primary hover:bg-surface-secondary pressable transition-all flex items-center gap-2"
+            disabled
+            className="px-4 py-2 rounded-xl bg-surface-secondary border border-border-default text-xs font-bold text-text-tertiary cursor-not-allowed flex items-center gap-2 opacity-60"
           >
-            <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/>
             </svg>
-            Googleアカウントを再認証する
-          </button>
-          <button
-            onClick={() => alert("連携解除の確認ダイアログです（デモ動作）")}
-            className="px-4 py-2 rounded-xl bg-surface border border-border-default text-xs font-bold text-rose-600 hover:bg-rose-50 hover:border-rose-200 pressable transition-all"
-          >
-            連携を解除する
+            Googleアカウント連携（審査完了後に利用可能）
           </button>
         </div>
       </div>
@@ -188,7 +168,7 @@ export default function AdminSettingsPage() {
             2. 対象ロケーション（店舗）設定
           </h2>
           <p className="text-xs text-text-tertiary mt-0.5">
-            Googleマップ上に登録されている対象店舗のPlace IDおよび口コミURL
+            Googleマップ上に登録されている対象店舗のPlace IDおよび口コミURL（アンケート後の実遷移先）
           </p>
         </div>
 
@@ -216,21 +196,15 @@ export default function AdminSettingsPage() {
                 value={selectedStore.placeId}
                 className="flex-1 font-mono px-3.5 py-2.5 rounded-xl bg-surface-secondary border border-border-subtle text-xs text-text-primary focus:outline-none"
               />
-              <button
-                onClick={() => alert("Google Place IDの存在確認・疎通チェックに成功しました（200 OK）")}
-                className="px-4 py-2.5 rounded-xl bg-brand-light text-brand text-xs font-bold pressable hover:bg-brand/15 transition-all"
-              >
-                ID検証
-              </button>
             </div>
             <p className="text-[11px] text-text-tertiary mt-1">
-              ※ Place IDにより、Googleマップ上の口コミ投稿URLおよび閲覧統計データと自動紐付けされます。
+              ※ Place IDにより、Googleマップ上の口コミ投稿URL（同一導線）へ来店客を案内します。
             </p>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-text-secondary mb-1.5">
-              直接口コミ投稿URL（ポチコミ最終遷移先）
+              直接口コミ投稿URL（ポチコミ最終遷移先・全星同一導線）
             </label>
             <div className="flex gap-2">
               <input
@@ -251,27 +225,6 @@ export default function AdminSettingsPage() {
                 </svg>
               </a>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. クライアント案内用：導入ステップ解説 */}
-      <div className="p-5 rounded-2xl bg-brand-light border border-brand-border space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-brand flex items-center gap-1.5">
-          <span>💡</span> クライアント新規導入時の設定手順
-        </h3>
-        <div className="grid sm:grid-cols-3 gap-3 text-xs leading-relaxed text-brand-text">
-          <div className="p-3 rounded-xl bg-surface/70 border border-brand-border/40">
-            <span className="font-bold text-brand block mb-0.5">ステップ 1</span>
-            Googleアカウント認証ボタンを押して、店舗のGoogleビジネスプロフィール権限を承認します。
-          </div>
-          <div className="p-3 rounded-xl bg-surface/70 border border-brand-border/40">
-            <span className="font-bold text-brand block mb-0.5">ステップ 2</span>
-            管理対象の店舗（ロケーション）を選択すると、Place IDと口コミURLが自動セットされます。
-          </div>
-          <div className="p-3 rounded-xl bg-surface/70 border border-brand-border/40">
-            <span className="font-bold text-brand block mb-0.5">ステップ 3</span>
-            直近の閲覧数・検索数・口コミ推移がダッシュボードへ自動でインポートされ、運用開始となります。
           </div>
         </div>
       </div>

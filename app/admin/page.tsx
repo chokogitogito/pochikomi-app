@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserStores, getMetrics } from "@/lib/db";
 import AdminDashboardClient from "@/components/admin/AdminDashboardClient";
-import type { StoreMetrics } from "@/lib/types";
+import type { StoreMetrics, FunnelMetricsSummary } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +58,14 @@ export default async function AdminDashboardPage() {
   // 各店舗の未返信口コミ件数を集計（サーバー側事前集計）
   let totalUnrepliedCount = 0;
   let unrepliedCounts: Record<string, number> = {};
+  let funnelComparison: {
+    totalSummary?: FunnelMetricsSummary;
+    locationSummaries?: FunnelMetricsSummary[];
+  } = {};
+
   try {
     const { getUnrepliedReviewCount } = await import("@/lib/repositories/review-repository");
+    const { getMultiStoreComparison } = await import("@/lib/repositories/funnel-repository");
     const { createAdminClient } = await import("@/lib/supabase/admin");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const admin = createAdminClient() as any;
@@ -68,22 +74,31 @@ export default async function AdminDashboardPage() {
       stores.map(async (store) => {
         const { data: loc } = await admin
           .from("locations")
-          .select("id")
+          .select("id, organization_id")
           .eq("public_slug", store.id)
           .maybeSingle();
 
         if (loc?.id) {
           const count = await getUnrepliedReviewCount(loc.id);
-          return { storeId: store.id, count };
+          return { storeId: store.id, count, orgId: loc.organization_id };
         }
-        return { storeId: store.id, count: 0 };
+        return { storeId: store.id, count: 0, orgId: null };
       })
     );
 
     unrepliedCounts = Object.fromEntries(countResults.map((r) => [r.storeId, r.count]));
     totalUnrepliedCount = countResults.reduce((sum, r) => sum + r.count, 0);
+
+    const firstOrgId = countResults.find((r) => r.orgId)?.orgId;
+    if (firstOrgId) {
+      const comp = await getMultiStoreComparison({ organizationId: firstOrgId });
+      funnelComparison = {
+        totalSummary: comp.totalSummary,
+        locationSummaries: comp.locationSummaries,
+      };
+    }
   } catch (err) {
-    console.error("[AdminDashboardPage] 未返信件数の集計エラー:", err);
+    console.error("[AdminDashboardPage] 未返信件数・ファネル集計エラー:", err);
   }
 
   return (
@@ -94,6 +109,7 @@ export default async function AdminDashboardPage() {
       isDemoUser={false}
       totalUnrepliedCount={totalUnrepliedCount}
       unrepliedCounts={unrepliedCounts}
+      funnelComparison={funnelComparison}
     />
   );
 }

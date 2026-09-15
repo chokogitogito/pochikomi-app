@@ -3,7 +3,7 @@ import { getStore, issueCoupon } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { storeId } = body;
+  const { storeId, sessionId } = body;
 
   if (typeof storeId !== "string") {
     return NextResponse.json({ error: "storeId is required" }, { status: 400 });
@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Store not found" }, { status: 404 });
   }
 
-  const coupon = await issueCoupon(storeId);
+  const safeSessionId = typeof sessionId === "string" ? sessionId : null;
+  const coupon = await issueCoupon(storeId, safeSessionId);
   if (!coupon) {
     return NextResponse.json({ error: "Active coupon not found" }, { status: 404 });
   }
