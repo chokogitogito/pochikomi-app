@@ -126,7 +126,7 @@
     },
     {
       "id": "golf",
-      "name": "ゴルフ場（商談デモ用）",
+      "name": "ゴルフ場",
       "shortName": "ゴルフ場",
       "category": "ゴルフ場・カントリークラブ",
       "plan": "growth",
@@ -249,7 +249,7 @@
     },
     {
       "id": "ramen",
-      "name": "ラーメン店（商談デモ用）",
+      "name": "ラーメン店",
       "shortName": "ラーメン店",
       "category": "ラーメン・飲食店",
       "plan": "premium",
@@ -332,7 +332,7 @@
     {
       "id": "golf-thanks",
       "storeId": "golf",
-      "title": "ゴルフ場 アンケートご協力のお礼",
+      "title": "アンケートご協力のお礼",
       "description": "次回ラウンド時にご利用いただける特典です。",
       "expiresInDays": 30,
       "issuedCount": 0,
