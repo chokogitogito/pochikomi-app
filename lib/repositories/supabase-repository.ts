@@ -33,6 +33,8 @@ interface RawLocation {
   public_slug: string;
   legacy_slugs: string[];
   name: string;
+  short_name: string | null;
+  monthly_goal: number | null;
   category: string;
   google_place_id: string | null;
   google_maps_review_url: string;
@@ -364,6 +366,8 @@ export async function saveStoreToSupabase(input: Store): Promise<Store> {
     .from("locations")
     .update({
       name: input.name,
+      short_name: input.shortName ?? null,
+      monthly_goal: input.monthlyGoal,
       category: input.category,
       google_maps_review_url: input.googleMapsUrl,
       keywords: input.keywords,
@@ -602,12 +606,13 @@ function mapLocationToStore(loc: RawLocation): Store {
   return {
     id: loc.public_slug,
     name: loc.name,
+    ...(loc.short_name ? { shortName: loc.short_name } : {}),
     category: loc.category || "ゴルフ場・ゴルフコース",
     plan: "growth",
     status: "active",
     keywords: loc.keywords || [],
     googleMapsUrl: loc.google_maps_review_url || "",
-    monthlyGoal: 20,
+    monthlyGoal: loc.monthly_goal ?? 20,
     surveyOptions: {
       sources: options.sources || [],
       menus: options.menus || [],
