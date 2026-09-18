@@ -777,6 +777,164 @@
           "category": "シーシャバー"
         }
       ]
+    },
+    "ramen": {
+      "id": "ramen",
+      "name": "ラーメン店（商談デモ用）",
+      "shortName": "ラーメン店",
+      "diagnosisDate": "2026-09-03",
+      "competitorCheckDate": "2026-09-19",
+      "marketLabel": "中野エリア 家系・豚骨ラーメン",
+      "totalScore": 80.0,
+      "maxScore": 100,
+      "rank": "B",
+      "breakdown": [
+        {
+          "category": "基礎整合性",
+          "score": 16.0,
+          "max": 20,
+          "note": "電話番号の情報が不十分"
+        },
+        {
+          "category": "鮮度・更新",
+          "score": 14.0,
+          "max": 15,
+          "note": "投稿運用 優秀"
+        },
+        {
+          "category": "口コミ",
+          "score": 24.5,
+          "max": 35,
+          "note": "件数1,989件 / 平均4.3 / ★1が8%"
+        },
+        {
+          "category": "視覚コンテンツ",
+          "score": 13.5,
+          "max": 15,
+          "note": "写真運用 優秀"
+        },
+        {
+          "category": "AI検索文脈",
+          "score": 12.0,
+          "max": 15,
+          "note": "AIO ChatGPT80% / Gemini50% / Google AI 100%"
+        }
+      ],
+      "improvements": [
+        {
+          "rank": 1,
+          "category": "口コミ",
+          "potential": 10.5,
+          "reason": "唯一のC評価。★1が151件(8%)あり平均4.3を押し下げている。高評価の積み増しで改善"
+        },
+        {
+          "rank": 2,
+          "category": "基礎整合性",
+          "potential": 4.0,
+          "reason": "電話番号が未整備。基本情報の充足で確実に加点"
+        },
+        {
+          "rank": 3,
+          "category": "AI検索文脈",
+          "potential": 3.0,
+          "reason": "Geminiの引用率が50%。説明文の強化でAI検索の露出を底上げ"
+        }
+      ],
+      "gbpProvenance": "demo",
+      "gbpPerformance": {
+        "monthlyViews": 69666,
+        "searchViews": 20900,
+        "mapsViews": 48766,
+        "directSearchRatio": 18,
+        "discoverySearchRatio": 82,
+        "actions": {
+          "directionRequests": 2509,
+          "websiteClicks": 826,
+          "phoneCalls": 0
+        },
+        "trends": [
+          {
+            "month": "4月",
+            "reviews": 118,
+            "views": 42000,
+            "directions": 1480
+          },
+          {
+            "month": "5月",
+            "reviews": 132,
+            "views": 48500,
+            "directions": 1690
+          },
+          {
+            "month": "6月",
+            "reviews": 145,
+            "views": 54200,
+            "directions": 1880
+          },
+          {
+            "month": "7月",
+            "reviews": 148,
+            "views": 60100,
+            "directions": 2090
+          },
+          {
+            "month": "8月",
+            "reviews": 148,
+            "views": 65400,
+            "directions": 2310
+          },
+          {
+            "month": "9月(予測)",
+            "reviews": 170,
+            "views": 69666,
+            "directions": 2509
+          }
+        ]
+      },
+      "competitors": [
+        {
+          "name": "ラーメン店（自社）",
+          "rating": 4.3,
+          "reviews": 1989,
+          "isOwn": true,
+          "category": "家系・豚骨"
+        },
+        {
+          "name": "二代目武道家",
+          "rating": 4.1,
+          "reviews": 1760,
+          "isOwn": false,
+          "category": "家系"
+        },
+        {
+          "name": "武蔵家 中野本店",
+          "rating": 4.1,
+          "reviews": 1062,
+          "isOwn": false,
+          "category": "家系"
+        },
+        {
+          "name": "五丁目ハウス",
+          "rating": 3.9,
+          "reviews": 638,
+          "isOwn": false,
+          "category": "家系"
+        },
+        {
+          "name": "輝道家",
+          "rating": 3.8,
+          "reviews": 634,
+          "isOwn": false,
+          "category": "家系"
+        },
+        {
+          "name": "中野家",
+          "rating": 4.0,
+          "reviews": 357,
+          "isOwn": false,
+          "category": "家系"
+        }
+      ]
     }
   },
   "schemaNote": "競合・診断日は stores[*] 配下に保持する（店舗ごとに市場が異なるため）"
