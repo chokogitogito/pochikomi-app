@@ -63,15 +63,62 @@ export default function AdminDashboardClient({
       ? Math.round((currentMetrics.reviewClicks / currentMetrics.surveyStarts) * 100)
       : 0;
 
-  // GBPデモデータ（参考表示）
-  const gbpStoreKey =
-    selectedStoreId === "ss-grand" || selectedStoreId === "golf-b"
-      ? "ss-grand"
-      : "classic";
-  const currentGbp =
-    meoData.stores[gbpStoreKey]?.gbpPerformance ||
-    meoData.stores["classic"]?.gbpPerformance ||
-    meoData.stores["golf-a"].gbpPerformance;
+  // 単一店舗を選んでいる間は「クライアント表示モード」。
+  // 他店舗の実績・ステータス・競合は一切描画しない（商談で店舗に画面を見せるため）。
+  const isClientView = selectedStoreId !== "all";
+
+  // 選択店舗のMEO診断データ。slug揺れ（classic/golf-a等）を吸収する。
+  const diagnosisAliases: Record<string, string> = {
+    classic: "classic",
+    "golf-a": "classic",
+    "ss-grand": "ss-grand",
+    "golf-b": "ss-grand",
+    hookaalab: "hookaalab",
+  };
+  type DiagnosisStore = (typeof meoData.stores)["classic"];
+  const diagnosisStores = meoData.stores as unknown as Record<string, DiagnosisStore | undefined>;
+
+  const resolveDiagnosis = (storeId: string): DiagnosisStore | undefined =>
+    diagnosisStores[diagnosisAliases[storeId] ?? storeId];
+
+  // 表示対象の診断カード（全拠点合計なら管理下の全店舗、単一選択ならその店舗のみ）
+  const diagnosisTargets = (isClientView ? stores.filter((s) => s.id === selectedStoreId) : stores)
+    .map((s) => ({ store: s, diagnosis: resolveDiagnosis(s.id) }))
+    .filter((x): x is { store: Store; diagnosis: DiagnosisStore } => Boolean(x.diagnosis));
+
+  // GBPパフォーマンス／競合は選択店舗のものだけを使う。
+  // クライアント表示モードで診断データが無い店舗は、他店舗へフォールバックさせない
+  // （フォールバックすると別クライアントの数値が競合欄に出てしまうため）。
+  const selectedDiagnosis = isClientView ? resolveDiagnosis(selectedStoreId) : undefined;
+  const fallbackDiagnosis = diagnosisStores["classic"] ?? diagnosisStores["golf-a"];
+  const gbpSource = isClientView ? selectedDiagnosis : fallbackDiagnosis;
+  const currentGbp = gbpSource?.gbpPerformance;
+  const gbpIsPlaceholder =
+    (gbpSource as { gbpProvenance?: string } | undefined)?.gbpProvenance === "placeholder";
+
+  const competitorSource = gbpSource;
+  const competitors = competitorSource?.competitors ?? [];
+  const ownCompetitors = competitors.filter((c) => c.isOwn);
+  const rivalCompetitors = competitors.filter((c) => !c.isOwn);
+  const topRivals = [...rivalCompetitors].sort((a, b) => b.reviews - a.reviews).slice(0, 3);
+
+  // 表示中の店舗群で最も伸びしろが大きいカテゴリ（旧「両拠点とも〜口コミ」の固定文言を動的化）
+  const topImprovementCategory = (() => {
+    const counts = new Map<string, number>();
+    for (const { diagnosis } of diagnosisTargets) {
+      const top = diagnosis.improvements?.[0]?.category;
+      if (top) counts.set(top, (counts.get(top) || 0) + 1);
+    }
+    let best: string | null = null;
+    let bestCount = 0;
+    for (const [cat, n] of counts) {
+      if (n > bestCount) {
+        best = cat;
+        bestCount = n;
+      }
+    }
+    return best && bestCount === diagnosisTargets.length ? best : null;
+  })();
 
   return (
     <div className="p-5 md:p-8 max-w-6xl mx-auto space-y-8">
@@ -89,33 +136,56 @@ export default function AdminDashboardClient({
           </p>
         </div>
 
-        {/* 店舗切り替えタブ */}
-        <div className="flex bg-surface-secondary p-1 rounded-xl border border-border-subtle shrink-0 flex-wrap gap-1">
-          <button
-            onClick={() => setSelectedStoreId("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
-              selectedStoreId === "all"
-                ? "bg-surface text-brand shadow-xs"
-                : "text-text-secondary hover:text-text-primary"
+        {/* 店舗切り替え（店舗数が増えても幅が変わらないドロップダウン方式） */}
+        <div className="shrink-0 w-full sm:w-72">
+          <label
+            htmlFor="store-selector"
+            className="block text-[11px] font-bold text-text-tertiary mb-1"
+          >
+            表示する店舗
+          </label>
+          <select
+            id="store-selector"
+            value={selectedStoreId}
+            onChange={(e) => setSelectedStoreId(e.target.value)}
+            className="w-full rounded-xl border border-border-default bg-surface px-3 py-2 text-sm font-bold text-text-primary shadow-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          >
+            <option value="all">全拠点合計（{stores.length}店舗・運営者のみ）</option>
+            {stores.map((store) => (
+              <option key={store.id} value={store.id}>
+                {store.shortName || store.name}
+              </option>
+            ))}
+          </select>
+          <p
+            className={`mt-1.5 text-[11px] font-bold flex items-center gap-1 ${
+              isClientView ? "text-emerald-700" : "text-amber-700"
             }`}
           >
-            全拠点合計 ({stores.length}店舗)
-          </button>
-          {stores.map((store) => (
-            <button
-              key={store.id}
-              onClick={() => setSelectedStoreId(store.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold pressable transition-all ${
-                selectedStoreId === store.id
-                  ? "bg-surface text-brand shadow-xs"
-                  : "text-text-secondary hover:text-text-primary"
+            <span
+              className={`inline-block w-1.5 h-1.5 rounded-full ${
+                isClientView ? "bg-emerald-500" : "bg-amber-500"
               }`}
-            >
-              {store.name.replace(/（.+?）/, "").replace(/宇都宮\s*/, "")}
-            </button>
-          ))}
+            />
+            {isClientView
+              ? "クライアント表示モード：この店舗の情報のみ表示中"
+              : "運営者モード：全店舗の情報が表示されます"}
+          </p>
         </div>
       </div>
+
+      {/* 運営者モードの注意喚起（店舗に画面を見せる前の誤操作防止） */}
+      {!isClientView && stores.length > 1 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[11px] text-amber-900 flex items-start gap-2">
+          <svg className="w-4 h-4 shrink-0 mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          <span>
+            現在は<strong>全店舗の実績・競合・店舗一覧が表示されています</strong>。
+            特定の店舗様に画面をお見せする際は、上の「表示する店舗」からその店舗を選択してください。
+          </span>
+        </div>
+      )}
 
       {/* 未返信口コミアラートカード */}
       {activeUnrepliedCount > 0 && (
@@ -221,10 +291,10 @@ export default function AdminDashboardClient({
           <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card flex flex-col justify-between">
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-2">
-                管理店舗ステータス
+                {isClientView ? "店舗ステータス" : "管理店舗ステータス"}
               </h3>
               <div className="space-y-2.5">
-                {stores.map((store) => (
+                {(isClientView ? stores.filter((s) => s.id === selectedStoreId) : stores).map((store) => (
                   <div
                     key={store.id}
                     className="flex items-center justify-between p-2.5 rounded-xl bg-surface-secondary"
@@ -270,8 +340,8 @@ export default function AdminDashboardClient({
           </div>
         </div>
 
-        {/* 多店舗ファネル実績比較テーブル（Phase 1: 多店舗集約） */}
-        {funnelComparison && funnelComparison.locationSummaries && funnelComparison.locationSummaries.length > 0 && (
+        {/* 多店舗ファネル実績比較テーブル（他店舗が写るため運営者モード限定） */}
+        {!isClientView && funnelComparison && funnelComparison.locationSummaries && funnelComparison.locationSummaries.length > 0 && (
           <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
               <div>
@@ -330,7 +400,9 @@ export default function AdminDashboardClient({
 
       {/* ─────────────────────────────────────────────────────────────
           2. Googleビジネスプロフィール集客パフォーマンス分析（参考デモ・推計モデル）
+          ※データが無い店舗では他店舗へフォールバックさせず非表示にする
       ───────────────────────────────────────────────────────────── */}
+      {currentGbp && (
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
@@ -340,10 +412,20 @@ export default function AdminDashboardClient({
               </h2>
               <ProvenanceBadge provenance="demo" label="参考デモ (demo)" />
               <ProvenanceBadge provenance="estimated" label="推計モデル (estimated)" />
+              {gbpIsPlaceholder && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                  GBP未接続・仮数値
+                </span>
+              )}
             </div>
             <p className="text-xs text-text-tertiary mt-0.5">
               ※Google Business Profile API審査待ちのため、以下はシミュレーション用モデル値です（審査通過後に実APIデータへ自動切替）。
             </p>
+            {gbpIsPlaceholder && (
+              <p className="text-[11px] text-rose-700 mt-1 font-semibold">
+                ※この店舗はGBP未接続のため、下記の数値は<strong>実測値ではなく仮の参考値</strong>です。接続後に実データへ置き換わります。
+              </p>
+            )}
           </div>
           <span className="text-[11px] text-text-tertiary">
             ※Google Contentポリシー（30日保持制約）準拠設計
@@ -422,6 +504,7 @@ export default function AdminDashboardClient({
           <GbpTrendChart trends={currentGbp.trends} />
         </div>
       </section>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           3. MEO診断スコア比較（76_meo-score 実診断データ）
@@ -436,29 +519,35 @@ export default function AdminDashboardClient({
               <ProvenanceBadge provenance="manual" label="外部診断取込 (manual)" />
             </div>
             <p className="text-xs text-text-tertiary mt-0.5">
-              Googleビジネスプロフィール診断エンジン「76_meo-score」解析結果（診断日: {meoData.diagnosisDate}）
+              Googleビジネスプロフィール診断エンジン「76_meo-score」解析結果
+              {diagnosisTargets.length === 1 && `（診断日: ${diagnosisTargets[0].diagnosis.diagnosisDate}）`}
             </p>
           </div>
-          <div className="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
-            両拠点とも最大の改善伸びしろは「口コミ」
-          </div>
+          {topImprovementCategory && (
+            <div className="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
+              {diagnosisTargets.length > 1 ? "全拠点とも" : ""}最大の改善伸びしろは「{topImprovementCategory}」
+            </div>
+          )}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-5">
-          <DiagnosisCard
-            storeName="ゴルフコンディショニングスタジオ宇都宮 The蔵ssic"
-            store={meoData.stores["classic"] || meoData.stores["golf-a"]}
-          />
-          <DiagnosisCard
-            storeName="SS.GRAND（エスエスグランド スクールオブゴルフ）"
-            store={meoData.stores["ss-grand"] || meoData.stores["golf-b"]}
-          />
-        </div>
+        {diagnosisTargets.length > 0 ? (
+          <div className={`grid gap-5 ${diagnosisTargets.length > 1 ? "md:grid-cols-2" : ""}`}>
+            {diagnosisTargets.map(({ store, diagnosis }) => (
+              <DiagnosisCard key={store.id} storeName={store.name} store={diagnosis} />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-surface rounded-2xl p-5 border border-border-default shadow-card text-xs text-text-secondary">
+            この店舗のMEO診断データは未取得です。診断エンジン「76_meo-score」で診断すると、ここにスコアと改善優先順位が表示されます。
+          </div>
+        )}
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           4. 競合分析（評価 × 口コミ数 散布図）
+          ※市場が店舗ごとに異なるため、データが無い店舗では非表示にする
       ───────────────────────────────────────────────────────────── */}
+      {competitors.length > 0 && (
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div>
@@ -469,43 +558,78 @@ export default function AdminDashboardClient({
               <ProvenanceBadge provenance="manual" label="実地観測 (manual)" />
             </div>
             <p className="text-xs text-text-tertiary mt-0.5">
-              Googleマップ近隣競合実測データ（取得日: {meoData.competitorCheckDate}）
+              Googleマップ近隣競合実測データ
+              {competitorSource?.marketLabel ? `／${competitorSource.marketLabel}` : ""}
+              （取得日: {competitorSource?.competitorCheckDate}）
             </p>
           </div>
-          <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-            評価は地域最高・口コミ数だけが2桁不足
-          </span>
+          {ownCompetitors.length > 0 && rivalCompetitors.length > 0 && (
+            <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+              {(() => {
+                const ownBest = Math.max(...ownCompetitors.map((c) => c.rating));
+                const rivalBest = Math.max(...rivalCompetitors.map((c) => c.rating));
+                const ownMaxReviews = Math.max(...ownCompetitors.map((c) => c.reviews));
+                const rivalMedian = [...rivalCompetitors].sort((a, b) => a.reviews - b.reviews)[
+                  Math.floor(rivalCompetitors.length / 2)
+                ].reviews;
+                const gap = ownMaxReviews > 0 ? Math.round(rivalMedian / ownMaxReviews) : 0;
+                if (ownBest >= rivalBest && gap >= 5) {
+                  return `評価は地域最高・口コミ数だけが約${gap}分の1`;
+                }
+                return "評価 × 口コミ数の市場ポジション";
+              })()}
+            </span>
+          )}
         </div>
 
         <div className="bg-surface rounded-2xl p-6 border border-border-default shadow-card">
-          <CompetitorScatterChart competitors={meoData.competitors} />
+          <CompetitorScatterChart competitors={competitors} />
 
           <div className="mt-6 pt-5 border-t border-border-subtle grid sm:grid-cols-3 gap-3 text-xs">
             <div className="p-3 rounded-xl bg-surface-secondary">
-              <p className="font-bold text-text-primary">自社2拠点の現状</p>
+              <p className="font-bold text-text-primary">
+                {ownCompetitors.length > 1 ? `自社${ownCompetitors.length}拠点の現状` : "現状"}
+              </p>
               <p className="text-text-secondary mt-1">
-                The蔵ssic: <strong>★5.0 (7件)</strong><br />
-                SS.GRAND: <strong>★5.0 (1件)</strong><br />
-                満足度は最高ですが、件数が少なくマップで埋もれています。
+                {ownCompetitors.map((c) => (
+                  <span key={c.name}>
+                    {c.name.replace("（自社）", "")}: <strong>★{c.rating.toFixed(1)} ({c.reviews}件)</strong>
+                    <br />
+                  </span>
+                ))}
+                満足度は最高水準ですが、件数が少なくマップで埋もれています。
               </p>
             </div>
             <div className="p-3 rounded-xl bg-surface-secondary">
               <p className="font-bold text-text-primary">近隣上位競合</p>
               <p className="text-text-secondary mt-1">
-                雀宮練習場: <strong>4.0 (68件)</strong><br />
-                Lounge Range: <strong>4.9 (57件)</strong><br />
-                SWING24/7: <strong>4.9 (56件)</strong>
+                {topRivals.map((c) => (
+                  <span key={c.name}>
+                    {c.name}: <strong>★{c.rating.toFixed(1)} ({c.reviews}件)</strong>
+                    <br />
+                  </span>
+                ))}
               </p>
             </div>
             <div className="p-3 rounded-xl bg-brand-light border border-brand-border text-brand-text">
               <p className="font-bold">ポチコミ導入後の目標</p>
               <p className="mt-1">
-                月20件 × 3ヶ月で<strong>60件超</strong>に到達。評価★5.0を維持したまま地域エリアNo.1のMEO上位表示を獲得します。
+                {(() => {
+                  const goal = selectedStore?.monthlyGoal || 20;
+                  const base = ownCompetitors.length === 1 ? ownCompetitors[0].reviews : 0;
+                  return (
+                    <>
+                      月{goal}件 × 3ヶ月で<strong>{base + goal * 3}件超</strong>に到達。
+                      評価を維持したまま、地域エリア上位のMEO表示を狙います。
+                    </>
+                  );
+                })()}
               </p>
             </div>
           </div>
         </div>
       </section>
+      )}
     </div>
   );
 }
