@@ -246,6 +246,68 @@
           "店内が少し狭く感じた"
         ]
       }
+    },
+    {
+      "id": "ramen",
+      "name": "ラーメン店（商談デモ用）",
+      "shortName": "ラーメン店",
+      "category": "ラーメン・飲食店",
+      "plan": "premium",
+      "status": "active",
+      "keywords": [
+        "家系ラーメン",
+        "豚骨ラーメン",
+        "中野",
+        "駅近",
+        "ランチ",
+        "行列店"
+      ],
+      "googleMapsUrl": "https://maps.google.com/?q=ramen",
+      "monthlyGoal": 150,
+      "surveyOptions": {
+        "sources": [
+          "Google検索",
+          "Googleマップ",
+          "SNS（X・Instagram）",
+          "知人・友人の紹介",
+          "食べログ・ラーメンまとめサイト",
+          "店の前を通りかかって",
+          "以前から常連",
+          "その他"
+        ],
+        "menus": [
+          "ラーメン（並）",
+          "ラーメン（大盛）",
+          "つけ麺",
+          "味玉ラーメン",
+          "チャーシューメン",
+          "ライス・サイドメニュー",
+          "テイクアウト",
+          "その他"
+        ],
+        "goodPoints": [
+          "スープが濃厚で好みの味だった",
+          "麺の硬さを好みに調整してもらえた",
+          "トッピングの種類が豊富だった",
+          "回転が速く待ち時間が短かった",
+          "ライス無料などコスパが良い",
+          "店員さんの接客が気持ちよかった",
+          "駅から近く立ち寄りやすい",
+          "店内が清潔だった",
+          "一人でも入りやすい雰囲気",
+          "深夜まで営業していて助かる"
+        ],
+        "badPoints": [
+          "待ち時間が長かった",
+          "味が好みより濃かった／薄かった",
+          "店内が混雑していて窮屈だった",
+          "注文から提供まで時間がかかった",
+          "店員さんの案内が分かりにくかった",
+          "席やテーブルが気になった",
+          "価格がやや高いと感じた",
+          "メニューが分かりにくかった"
+        ]
+      }
     }
   ],
   "coupons": [
@@ -284,6 +346,15 @@
       "expiresInDays": 30,
       "issuedCount": 0,
       "active": true
+    },
+    {
+      "id": "ramen-thanks",
+      "storeId": "ramen",
+      "title": "アンケートご協力のお礼",
+      "description": "次回ご来店時にご利用いただけるお礼の特典です。",
+      "expiresInDays": 30,
+      "issuedCount": 88,
+      "active": true
     }
   ],
   "metrics": [
@@ -318,6 +389,14 @@
       "reviewClicks": 0,
       "couponsIssued": 0,
       "averageRating": 5
+    },
+    {
+      "storeId": "ramen",
+      "surveyStarts": 412,
+      "generatedReviews": 305,
+      "reviewClicks": 231,
+      "couponsIssued": 88,
+      "averageRating": 4.3
     }
   ],
   "events": [
