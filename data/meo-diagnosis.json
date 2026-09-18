@@ -110,7 +110,48 @@
             "directions": 184
           }
         ]
-      }
+      },
+      "diagnosisDate": "2026-07-27",
+      "competitorCheckDate": "2026-09-03",
+      "competitors": [
+        {
+          "name": "The蔵ssic（自社）",
+          "rating": 5,
+          "reviews": 7,
+          "isOwn": true,
+          "category": "インドアスタジオ"
+        },
+        {
+          "name": "SS.GRAND（自社）",
+          "rating": 5,
+          "reviews": 1,
+          "isOwn": true,
+          "category": "スクール・練習場"
+        },
+        {
+          "name": "Lounge Range 宇都宮",
+          "rating": 4.9,
+          "reviews": 57,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "SWING24/7 宇都宮店",
+          "rating": 4.9,
+          "reviews": 56,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "雀宮ゴルフ練習場",
+          "rating": 4.0,
+          "reviews": 68,
+          "isOwn": false,
+          "category": "屋外練習場"
+        }
+      ],
+      "marketLabel": "宇都宮 インドアゴルフ・練習場",
+      "gbpProvenance": "demo"
     },
     "ss-grand": {
       "id": "ss-grand",
@@ -220,7 +261,48 @@
             "directions": 112
           }
         ]
-      }
+      },
+      "diagnosisDate": "2026-07-27",
+      "competitorCheckDate": "2026-09-03",
+      "competitors": [
+        {
+          "name": "The蔵ssic（自社）",
+          "rating": 5,
+          "reviews": 7,
+          "isOwn": true,
+          "category": "インドアスタジオ"
+        },
+        {
+          "name": "SS.GRAND（自社）",
+          "rating": 5,
+          "reviews": 1,
+          "isOwn": true,
+          "category": "スクール・練習場"
+        },
+        {
+          "name": "Lounge Range 宇都宮",
+          "rating": 4.9,
+          "reviews": 57,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "SWING24/7 宇都宮店",
+          "rating": 4.9,
+          "reviews": 56,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "雀宮ゴルフ練習場",
+          "rating": 4.0,
+          "reviews": 68,
+          "isOwn": false,
+          "category": "屋外練習場"
+        }
+      ],
+      "marketLabel": "宇都宮 インドアゴルフ・練習場",
+      "gbpProvenance": "demo"
     },
     "golf-a": {
       "id": "classic",
@@ -330,7 +412,48 @@
             "directions": 184
           }
         ]
-      }
+      },
+      "diagnosisDate": "2026-07-27",
+      "competitorCheckDate": "2026-09-03",
+      "competitors": [
+        {
+          "name": "The蔵ssic（自社）",
+          "rating": 5,
+          "reviews": 7,
+          "isOwn": true,
+          "category": "インドアスタジオ"
+        },
+        {
+          "name": "SS.GRAND（自社）",
+          "rating": 5,
+          "reviews": 1,
+          "isOwn": true,
+          "category": "スクール・練習場"
+        },
+        {
+          "name": "Lounge Range 宇都宮",
+          "rating": 4.9,
+          "reviews": 57,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "SWING24/7 宇都宮店",
+          "rating": 4.9,
+          "reviews": 56,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "雀宮ゴルフ練習場",
+          "rating": 4.0,
+          "reviews": 68,
+          "isOwn": false,
+          "category": "屋外練習場"
+        }
+      ],
+      "marketLabel": "宇都宮 インドアゴルフ・練習場",
+      "gbpProvenance": "demo"
     },
     "golf-b": {
       "id": "ss-grand",
@@ -440,44 +563,221 @@
             "directions": 112
           }
         ]
-      }
+      },
+      "diagnosisDate": "2026-07-27",
+      "competitorCheckDate": "2026-09-03",
+      "competitors": [
+        {
+          "name": "The蔵ssic（自社）",
+          "rating": 5,
+          "reviews": 7,
+          "isOwn": true,
+          "category": "インドアスタジオ"
+        },
+        {
+          "name": "SS.GRAND（自社）",
+          "rating": 5,
+          "reviews": 1,
+          "isOwn": true,
+          "category": "スクール・練習場"
+        },
+        {
+          "name": "Lounge Range 宇都宮",
+          "rating": 4.9,
+          "reviews": 57,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "SWING24/7 宇都宮店",
+          "rating": 4.9,
+          "reviews": 56,
+          "isOwn": false,
+          "category": "インドアゴルフ"
+        },
+        {
+          "name": "雀宮ゴルフ練習場",
+          "rating": 4.0,
+          "reviews": 68,
+          "isOwn": false,
+          "category": "屋外練習場"
+        }
+      ],
+      "marketLabel": "宇都宮 インドアゴルフ・練習場",
+      "gbpProvenance": "demo"
+    },
+    "hookaalab": {
+      "id": "hookaalab",
+      "name": "HOOKAA Lab（フーカーラボ） カフェ&シーシャバー",
+      "shortName": "HOOKAA Lab",
+      "diagnosisDate": "2026-09-19",
+      "competitorCheckDate": "2026-09-19",
+      "marketLabel": "宇都宮 シーシャバー",
+      "totalScore": 40.5,
+      "maxScore": 100,
+      "rank": "C",
+      "breakdown": [
+        {
+          "category": "基礎整合性",
+          "score": 10.0,
+          "max": 20,
+          "note": "未整備: NAP一致・説明文"
+        },
+        {
+          "category": "鮮度・更新",
+          "score": 0.0,
+          "max": 15,
+          "note": "最終投稿 180日前"
+        },
+        {
+          "category": "口コミ",
+          "score": 21.7,
+          "max": 35,
+          "note": "件数6件 / 平均5.0 / 返信率高"
+        },
+        {
+          "category": "視覚コンテンツ",
+          "score": 3.5,
+          "max": 15,
+          "note": "写真10枚以上・動画なし"
+        },
+        {
+          "category": "AI検索文脈",
+          "score": 5.2,
+          "max": 15,
+          "note": "説明文が未設定"
+        }
+      ],
+      "improvements": [
+        {
+          "rank": 1,
+          "category": "鮮度・更新",
+          "potential": 15.0,
+          "reason": "週1回以上の投稿・写真更新で最大+15.0点。現在180日停止"
+        },
+        {
+          "rank": 2,
+          "category": "口コミ",
+          "potential": 13.3,
+          "reason": "件数6件が最大の弱点。獲得導線の整備で最大+13.3点"
+        },
+        {
+          "rank": 3,
+          "category": "視覚コンテンツ",
+          "potential": 11.5,
+          "reason": "短尺動画とカテゴリ別写真の追加で+11.5点"
+        }
+      ],
+      "gbpProvenance": "placeholder",
+      "gbpPerformance": {
+        "monthlyViews": 1850,
+        "searchViews": 550,
+        "mapsViews": 1300,
+        "directSearchRatio": 22,
+        "discoverySearchRatio": 78,
+        "actions": {
+          "directionRequests": 62,
+          "websiteClicks": 41,
+          "phoneCalls": 0
+        },
+        "trends": [
+          {
+            "month": "4月",
+            "reviews": 4,
+            "views": 1200,
+            "directions": 32
+          },
+          {
+            "month": "5月",
+            "reviews": 4,
+            "views": 1350,
+            "directions": 38
+          },
+          {
+            "month": "6月",
+            "reviews": 5,
+            "views": 1500,
+            "directions": 44
+          },
+          {
+            "month": "7月",
+            "reviews": 5,
+            "views": 1620,
+            "directions": 51
+          },
+          {
+            "month": "8月",
+            "reviews": 6,
+            "views": 1740,
+            "directions": 57
+          },
+          {
+            "month": "9月(予測)",
+            "reviews": 6,
+            "views": 1850,
+            "directions": 62
+          }
+        ]
+      },
+      "competitors": [
+        {
+          "name": "HOOKAA Lab（自社）",
+          "rating": 5.0,
+          "reviews": 6,
+          "isOwn": true,
+          "category": "シーシャバー"
+        },
+        {
+          "name": "Chill Time",
+          "rating": 4.9,
+          "reviews": 229,
+          "isOwn": false,
+          "category": "バー・シーシャ"
+        },
+        {
+          "name": "Shisha Ruhe",
+          "rating": 4.8,
+          "reviews": 183,
+          "isOwn": false,
+          "category": "シーシャバー"
+        },
+        {
+          "name": "STAY ALIVE -SHISHA HOUSE-",
+          "rating": 4.9,
+          "reviews": 162,
+          "isOwn": false,
+          "category": "シーシャバー"
+        },
+        {
+          "name": "よいやみ",
+          "rating": 4.9,
+          "reviews": 140,
+          "isOwn": false,
+          "category": "シーシャバー"
+        },
+        {
+          "name": "RUASHIA",
+          "rating": 4.7,
+          "reviews": 117,
+          "isOwn": false,
+          "category": "シーシャバー"
+        },
+        {
+          "name": "ゆるり",
+          "rating": 4.4,
+          "reviews": 76,
+          "isOwn": false,
+          "category": "シーシャバー"
+        },
+        {
+          "name": "El Terim 宇都宮本店",
+          "rating": 5.0,
+          "reviews": 72,
+          "isOwn": false,
+          "category": "シーシャバー"
+        }
+      ]
     }
   },
-  "competitors": [
-    {
-      "name": "The蔵ssic（自社）",
-      "rating": 5,
-      "reviews": 7,
-      "isOwn": true,
-      "category": "インドアスタジオ"
-    },
-    {
-      "name": "SS.GRAND（自社）",
-      "rating": 5,
-      "reviews": 1,
-      "isOwn": true,
-      "category": "スクール・練習場"
-    },
-    {
-      "name": "Lounge Range 宇都宮",
-      "rating": 4.9,
-      "reviews": 57,
-      "isOwn": false,
-      "category": "インドアゴルフ"
-    },
-    {
-      "name": "SWING24/7 宇都宮店",
-      "rating": 4.9,
-      "reviews": 56,
-      "isOwn": false,
-      "category": "インドアゴルフ"
-    },
-    {
-      "name": "雀宮ゴルフ練習場",
-      "rating": 4.0,
-      "reviews": 68,
-      "isOwn": false,
-      "category": "屋外練習場"
-    }
-  ]
+  "schemaNote": "競合・診断日は stores[*] 配下に保持する（店舗ごとに市場が異なるため）"
 }
