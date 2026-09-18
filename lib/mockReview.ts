@@ -11,6 +11,8 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
   const isPositive = rating >= 4;
 
   const area = store.keywords[0] ?? "";
+  // 業種名。「シーシャバー・カフェバー」のような複合表記は先頭だけ使う。
+  const categoryText = (store.category || "お店").split(/[・（(]/)[0];
   const point1 = selectedPoints[0] ?? "";
   const point2 = selectedPoints[1] ?? "";
   const menuText = menu && menu !== "その他" ? menu : "";
@@ -24,14 +26,14 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
       {
         tone: "friendly",
         text: [
-          sourceText ? `${sourceText}で見つけて${storeName}に行ってきました！⛳️` : `${storeName}に行ってきました！⛳️`,
+          sourceText ? `${sourceText}で見つけて${storeName}に行ってきました！` : `${storeName}に行ってきました！`,
           menuText ? `今回は${menuText}をお願いしました。` : "",
           "",
           point1 ? `${point1}のが本当に良かったです✨` : "",
           point2 ? `${point2}のも感動でした！` : "",
           commentClean ? commentClean.replace(/。$/, "！") : "",
           "",
-          area ? `${area}で良いゴルフ場を探している人にはすごくおすすめです😊` : "ゴルフ仲間にもぜひおすすめしたいです😊",
+          area ? `${area}で${categoryText}を探している人にはすごくおすすめです😊` : "友人にもぜひおすすめしたいです😊",
         ]
           .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
           .join("\n"),
@@ -46,7 +48,7 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
           point2 ? `${point2}ところも分かりやすくて良かったです！` : "",
           commentClean,
           "",
-          area ? `${area}でゴルフ場をお探しの方にぜひおすすめしたいです！` : "またぜひラウンドに伺いたいと思います！",
+          area ? `${area}で${categoryText}をお探しの方にぜひおすすめしたいです！` : "またぜひ伺いたいと思います！",
         ]
           .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
           .join("\n"),
@@ -111,7 +113,7 @@ export function buildMockDrafts(store: Store, answers: SurveyAnswers): ReviewDra
         point2 ? `${point2}点も併せて改善をご検討いただけますと幸甚に存じます。` : "",
         commentClean,
         "",
-        "指導内容や施設など良い点もございましたので、今後に期待しております。",
+        "雰囲気や設備など良い点もございましたので、今後に期待しております。",
       ]
         .filter((line, i, arr) => line !== "" || (i > 0 && i < arr.length - 1 && arr[i - 1] !== ""))
         .join("\n"),
