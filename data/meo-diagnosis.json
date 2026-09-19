@@ -854,37 +854,145 @@
         },
         "trends": [
           {
-            "month": "4月",
+            "month": "2024/10",
+            "reviews": 2,
+            "views": 6200,
+            "directions": 150
+          },
+          {
+            "month": "2024/11",
+            "reviews": 3,
+            "views": 6800,
+            "directions": 168
+          },
+          {
+            "month": "2024/12",
+            "reviews": 2,
+            "views": 7100,
+            "directions": 175
+          },
+          {
+            "month": "2025/01",
+            "reviews": 3,
+            "views": 7600,
+            "directions": 190
+          },
+          {
+            "month": "2025/02",
+            "reviews": 4,
+            "views": 8400,
+            "directions": 212
+          },
+          {
+            "month": "2025/03",
+            "reviews": 5,
+            "views": 9600,
+            "directions": 245
+          },
+          {
+            "month": "2025/04",
+            "reviews": 6,
+            "views": 21103,
+            "directions": 518
+          },
+          {
+            "month": "2025/05",
+            "reviews": 12,
+            "views": 23400,
+            "directions": 602
+          },
+          {
+            "month": "2025/06",
+            "reviews": 28,
+            "views": 27800,
+            "directions": 735
+          },
+          {
+            "month": "2025/07",
+            "reviews": 45,
+            "views": 31500,
+            "directions": 868
+          },
+          {
+            "month": "2025/08",
+            "reviews": 85,
+            "views": 35900,
+            "directions": 1010
+          },
+          {
+            "month": "2025/09",
+            "reviews": 514,
+            "views": 41200,
+            "directions": 1198
+          },
+          {
+            "month": "2025/10",
+            "reviews": 62,
+            "views": 44600,
+            "directions": 1305
+          },
+          {
+            "month": "2025/11",
+            "reviews": 83,
+            "views": 47800,
+            "directions": 1402
+          },
+          {
+            "month": "2025/12",
+            "reviews": 66,
+            "views": 49500,
+            "directions": 1468
+          },
+          {
+            "month": "2026/01",
+            "reviews": 58,
+            "views": 51200,
+            "directions": 1540
+          },
+          {
+            "month": "2026/02",
+            "reviews": 64,
+            "views": 53600,
+            "directions": 1622
+          },
+          {
+            "month": "2026/03",
+            "reviews": 76,
+            "views": 56100,
+            "directions": 1710
+          },
+          {
+            "month": "2026/04",
             "reviews": 118,
-            "views": 42000,
-            "directions": 1480
+            "views": 58900,
+            "directions": 1820
           },
           {
-            "month": "5月",
+            "month": "2026/05",
             "reviews": 132,
-            "views": 48500,
-            "directions": 1690
+            "views": 61400,
+            "directions": 1955
           },
           {
-            "month": "6月",
+            "month": "2026/06",
             "reviews": 145,
-            "views": 54200,
-            "directions": 1880
-          },
-          {
-            "month": "7月",
-            "reviews": 148,
-            "views": 60100,
+            "views": 63800,
             "directions": 2090
           },
           {
-            "month": "8月",
+            "month": "2026/07",
             "reviews": 148,
-            "views": 65400,
-            "directions": 2310
+            "views": 65900,
+            "directions": 2230
           },
           {
-            "month": "9月(予測)",
+            "month": "2026/08",
+            "reviews": 148,
+            "views": 67800,
+            "directions": 2380
+          },
+          {
+            "month": "2026/09",
             "reviews": 170,
             "views": 69666,
             "directions": 2509

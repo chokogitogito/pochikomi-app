@@ -384,22 +384,41 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
 /**
  * 口コミ獲得とGoogleマップ集客（ルート検索・表示数）の相関推移グラフ
  */
+/** 軸の上限を切りのよい値へ丸める（1-2-5系列） */
+function niceCeil(value: number): number {
+  if (value <= 0) return 1;
+  const exp = Math.floor(Math.log10(value));
+  const base = Math.pow(10, exp);
+  const n = value / base;
+  const step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+  return step * base;
+}
+
 export function GbpTrendChart({ trends }: { trends: Trend[] }) {
-  const width = 560;
+  const count = Math.max(trends.length, 2);
+  // 期間が長いほど横に伸ばし、月ラベルとバーが潰れないようにする
+  const width = Math.max(560, 44 * count);
   const height = 240;
-  const padding = { top: 25, right: 45, bottom: 40, left: 40 };
+  const padding = { top: 25, right: 45, bottom: 40, left: 48 };
 
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
 
-  const stepX = innerW / (trends.length - 1);
+  const stepX = innerW / (count - 1);
   const getX = (idx: number) => padding.left + idx * stepX;
 
-  const maxDir = 200;
+  // 軸はデータから算出する（店舗によって桁が2桁以上違うため固定値にしない）
+  const maxDir = niceCeil(Math.max(...trends.map((t) => t.directions), 1) * 1.15);
   const scaleDir = (val: number) => padding.top + innerH - (val / maxDir) * innerH;
 
-  const maxRev = 25;
+  const maxRev = niceCeil(Math.max(...trends.map((t) => t.reviews), 1) * 1.35);
   const scaleRev = (val: number) => padding.top + innerH - (val / maxRev) * innerH;
+
+  // 点数が多いときはラベルを間引く
+  const labelEvery = count <= 8 ? 1 : count <= 14 ? 2 : count <= 20 ? 3 : 4;
+  const showPointValues = count <= 8;
+  const barWidth = Math.max(6, Math.min(20, stepX * 0.55));
+  const gridLines = [0.25, 0.5, 0.75, 1].map((r) => Math.round(maxDir * r));
 
   const pathD = trends
     .map((t, idx) => `${idx === 0 ? "M" : "L"} ${getX(idx)} ${scaleDir(t.directions)}`)
@@ -420,7 +439,7 @@ export function GbpTrendChart({ trends }: { trends: Trend[] }) {
           </linearGradient>
         </defs>
 
-        {[50, 100, 150, 200].map((val) => {
+        {gridLines.map((val) => {
           const y = scaleDir(val);
           return (
             <g key={val}>
@@ -441,14 +460,14 @@ export function GbpTrendChart({ trends }: { trends: Trend[] }) {
                 className="fill-text-tertiary"
                 fontSize="10"
               >
-                {val}
+                {val.toLocaleString()}
               </text>
             </g>
           );
         })}
 
         {trends.map((t, idx) => {
-          const x = getX(idx) - 10;
+          const x = getX(idx) - barWidth / 2;
           const y = scaleRev(t.reviews);
           const barH = padding.top + innerH - y;
           return (
@@ -456,22 +475,24 @@ export function GbpTrendChart({ trends }: { trends: Trend[] }) {
               <rect
                 x={x}
                 y={y}
-                width="20"
+                width={barWidth}
                 height={Math.max(0, barH)}
                 fill="#2d8a56"
                 fillOpacity="0.28"
                 rx="3"
               />
-              <text
-                x={x + 10}
-                y={y - 4}
-                textAnchor="middle"
-                fill="#2d8a56"
-                fontSize="10"
-                fontWeight="bold"
-              >
-                {t.reviews > 0 ? `+${t.reviews}` : ""}
-              </text>
+              {showPointValues && (
+                <text
+                  x={x + barWidth / 2}
+                  y={y - 4}
+                  textAnchor="middle"
+                  fill="#2d8a56"
+                  fontSize="10"
+                  fontWeight="bold"
+                >
+                  {t.reviews > 0 ? `+${t.reviews}` : ""}
+                </text>
+              )}
             </g>
           );
         })}
@@ -484,25 +505,36 @@ export function GbpTrendChart({ trends }: { trends: Trend[] }) {
           const cy = scaleDir(t.directions);
           return (
             <g key={idx}>
-              <circle cx={cx} cy={cy} r="4.5" fill="#ffffff" stroke="#1b5e3b" strokeWidth="2.5" />
-              <text
-                x={cx}
-                y={cy - 9}
-                textAnchor="middle"
-                className="fill-text-primary font-bold"
-                fontSize="10"
-              >
-                {t.directions}件
-              </text>
-              <text
-                x={cx}
-                y={height - padding.bottom + 18}
-                textAnchor="middle"
-                className="fill-text-secondary font-medium"
-                fontSize="11"
-              >
-                {t.month}
-              </text>
+              <circle
+                cx={cx}
+                cy={cy}
+                r={showPointValues ? 4.5 : 3}
+                fill="#ffffff"
+                stroke="#1b5e3b"
+                strokeWidth="2.5"
+              />
+              {showPointValues && (
+                <text
+                  x={cx}
+                  y={cy - 9}
+                  textAnchor="middle"
+                  className="fill-text-primary font-bold"
+                  fontSize="10"
+                >
+                  {t.directions.toLocaleString()}件
+                </text>
+              )}
+              {(idx % labelEvery === 0 || idx === trends.length - 1) && (
+                <text
+                  x={cx}
+                  y={height - padding.bottom + 18}
+                  textAnchor="middle"
+                  className="fill-text-secondary font-medium"
+                  fontSize="11"
+                >
+                  {t.month}
+                </text>
+              )}
             </g>
           );
         })}
