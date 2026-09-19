@@ -501,7 +501,12 @@ export default function AdminDashboardClient({
               参考仮説モデルケース
             </span>
           </div>
-          <GbpTrendChart trends={currentGbp.trends} />
+          <GbpTrendChart
+            trends={currentGbp.trends}
+            showDirections={
+              (currentGbp as { showDirections?: boolean }).showDirections !== false
+            }
+          />
         </div>
       </section>
       )}
