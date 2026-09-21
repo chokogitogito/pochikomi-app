@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import type { Coupon, ReviewDraft, ReviewTone, Store } from "@/lib/types";
@@ -47,6 +47,8 @@ export default function SurveyPage() {
   const [regenerating, setRegenerating] = useState(false);
 
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
+  const reviewTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [issuedCoupon, setIssuedCoupon] = useState<IssuedCoupon | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -178,18 +180,49 @@ export default function SurveyPage() {
 
   const currentText = texts[activeTone] ?? "";
 
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(currentText)
-      .then(() => {
-        setCopied(true);
-        logEvent("review_copied", { tone: activeTone });
-        setTimeout(() => setCopied(false), 3000);
-      })
-      .catch((err) => {
-        console.warn("[survey] clipboard copy failed:", err);
-        logEvent("review_copy_failed", { tone: activeTone });
-      });
+  const markCopied = () => {
+    setCopied(true);
+    setCopyFailed(false);
+    logEvent("review_copied", { tone: activeTone });
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  /**
+   * 口コミ文をクリップボードへコピーする。
+   * Clipboard APIはLINE等のアプリ内ブラウザや古いSafariで拒否されることがあるため、
+   * 失敗したら旧APIへ退避し、それも駄目なら本文を選択して手動コピーへ誘導する。
+   */
+  const handleCopy = async () => {
+    if (!currentText) return;
+
+    try {
+      await navigator.clipboard.writeText(currentText);
+      markCopied();
+      return;
+    } catch (err) {
+      console.warn("[survey] clipboard copy failed, falling back:", err);
+    }
+
+    // 旧API（execCommand）へのフォールバック
+    try {
+      const el = reviewTextareaRef.current;
+      if (el) {
+        el.focus();
+        el.setSelectionRange(0, el.value.length);
+        if (document.execCommand("copy")) {
+          markCopied();
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("[survey] execCommand copy failed:", err);
+    }
+
+    // どちらも失敗：本文を選択状態にして手動コピーを案内する
+    reviewTextareaRef.current?.focus();
+    reviewTextareaRef.current?.setSelectionRange(0, currentText.length);
+    setCopyFailed(true);
+    logEvent("review_copy_failed", { tone: activeTone });
   };
 
   const issueCoupon = async () => {
@@ -414,6 +447,7 @@ export default function SurveyPage() {
             {/* 編集できる本文 */}
             <div className="rounded-2xl border border-border-default bg-surface p-4 shadow-card">
               <textarea
+                ref={reviewTextareaRef}
                 value={currentText}
                 onChange={(e) =>
                   setTexts((prev) => ({ ...prev, [activeTone]: e.target.value }))
@@ -464,6 +498,12 @@ export default function SurveyPage() {
                 </>
               )}
             </button>
+
+            {copyFailed && (
+              <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-semibold text-amber-900">
+                お使いのブラウザでは自動コピーができませんでした。上の文章を長押しして「コピー」を選んでください（文章は選択済みです）。
+              </p>
+            )}
 
             {/* Googleマップへのボタン。評価に関わらず全員に同じ導線 */}
             {store.googleMapsUrl ? (
