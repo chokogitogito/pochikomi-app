@@ -308,6 +308,70 @@
           "メニューが分かりにくかった"
         ]
       }
+    },
+    {
+      "id": "awanoyana",
+      "name": "粟野町観光やな",
+      "shortName": "粟野町観光やな",
+      "category": "鮎料理・観光やな",
+      "plan": "starter",
+      "status": "active",
+      "keywords": [
+        "鹿沼",
+        "鮎",
+        "鮎料理",
+        "観光やな",
+        "炭火焼き",
+        "思川",
+        "座敷"
+      ],
+      "googleMapsUrl": "https://search.google.com/local/writereview?placeid=ChIJO2XYT9xqH2ARlpYYZbJnRwA",
+      "monthlyGoal": 20,
+      "surveyOptions": {
+        "sources": [
+          "Google検索",
+          "Googleマップ",
+          "知人・友人の紹介",
+          "観光協会・観光サイトを見て",
+          "近くを通りかかって",
+          "鮎釣りのついでに",
+          "毎年来ている",
+          "その他"
+        ],
+        "menus": [
+          "鮎の塩焼き（2匹）",
+          "鮎の塩焼き（3匹）",
+          "稚鮎（アイソ）の唐揚げ",
+          "うなぎ料理",
+          "ごはん・鮎入り味噌汁のセット",
+          "焼きそば",
+          "テイクアウト",
+          "おとり鮎の購入",
+          "その他"
+        ],
+        "goodPoints": [
+          "炭火で焼いた鮎が香ばしかった",
+          "身がふっくらしていて美味しかった",
+          "稚鮎の唐揚げがサクサクだった",
+          "川のせせらぎを聞きながら食事できた",
+          "座敷でゆっくり過ごせた",
+          "子ども連れでも気兼ねなく過ごせた",
+          "値段に納得できた",
+          "店員さんの対応が親切だった",
+          "駐車場が停めやすかった",
+          "建物や店内がきれいだった"
+        ],
+        "badPoints": [
+          "待ち時間が長かった",
+          "混雑していて落ち着かなかった",
+          "冷房がなく暑かった",
+          "現金のみで戸惑った",
+          "営業時間や営業期間が分かりにくかった",
+          "予約が必要と知らずに行った",
+          "メニューや価格が分かりにくかった",
+          "道順が分かりにくかった"
+        ]
+      }
     }
   ],
   "coupons": [
@@ -355,6 +419,15 @@
       "expiresInDays": 30,
       "issuedCount": 88,
       "active": true
+    },
+    {
+      "id": "awanoyana-thanks",
+      "storeId": "awanoyana",
+      "title": "アンケートご協力のお礼",
+      "description": "次回ご来店時にご利用いただけるお礼の特典です。",
+      "expiresInDays": 30,
+      "issuedCount": 0,
+      "active": true
     }
   ],
   "metrics": [
@@ -397,6 +470,14 @@
       "reviewClicks": 231,
       "couponsIssued": 88,
       "averageRating": 4.3
+    },
+    {
+      "storeId": "awanoyana",
+      "surveyStarts": 2,
+      "generatedReviews": 2,
+      "reviewClicks": 0,
+      "couponsIssued": 0,
+      "averageRating": 5
     }
   ],
   "events": [
@@ -431,6 +512,69 @@
         "menu": "シーシャ（2時間・1台）"
       },
       "receivedAt": "2026-09-15T23:05:34.204Z"
+    },
+    {
+      "id": "evt-muasbgbi-u1f0yl",
+      "storeId": "awanoyana",
+      "type": "survey_started",
+      "payload": {
+        "source": "鮎釣りのついでに"
+      },
+      "receivedAt": "2026-09-21T05:08:25.566Z"
+    },
+    {
+      "id": "evt-muasc8xz-gy1rnw",
+      "storeId": "awanoyana",
+      "type": "review_generated",
+      "payload": {
+        "rating": 5,
+        "selectedPoints": [
+          "炭火で焼いた鮎が香ばしかった",
+          "川のせせらぎを聞きながら食事できた"
+        ],
+        "menu": "鮎の塩焼き（3匹）"
+      },
+      "receivedAt": "2026-09-21T05:09:02.664Z"
+    },
+    {
+      "id": "evt-muascmdb-15o6nr",
+      "storeId": "awanoyana",
+      "type": "review_copy_failed",
+      "payload": {
+        "tone": "standard"
+      },
+      "receivedAt": "2026-09-21T05:09:20.063Z"
+    },
+    {
+      "id": "evt-muase6rs-3hqh5r",
+      "storeId": "awanoyana",
+      "type": "survey_started",
+      "payload": {
+        "source": "Google検索"
+      },
+      "receivedAt": "2026-09-21T05:10:33.160Z"
+    },
+    {
+      "id": "evt-muaserx2-u2hxsf",
+      "storeId": "awanoyana",
+      "type": "review_generated",
+      "payload": {
+        "rating": 5,
+        "selectedPoints": [
+          "稚鮎の唐揚げがサクサクだった"
+        ],
+        "menu": "稚鮎（アイソ）の唐揚げ"
+      },
+      "receivedAt": "2026-09-21T05:11:00.566Z"
+    },
+    {
+      "id": "evt-muasey32-z0xse1",
+      "storeId": "awanoyana",
+      "type": "review_copy_failed",
+      "payload": {
+        "tone": "standard"
+      },
+      "receivedAt": "2026-09-21T05:11:08.558Z"
     }
   ]
 }

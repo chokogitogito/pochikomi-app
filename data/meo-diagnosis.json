@@ -996,6 +996,157 @@
           "category": "家系"
         }
       ]
+    },
+    "awanoyana": {
+      "id": "awanoyana",
+      "name": "粟野町観光やな",
+      "shortName": "粟野町観光やな",
+      "diagnosisDate": "2026-09-21",
+      "competitorCheckDate": "2026-09-21",
+      "marketLabel": "栃木県 観光やな・鮎料理",
+      "totalScore": 62.0,
+      "maxScore": 100,
+      "rank": "B",
+      "breakdown": [
+        {
+          "category": "基礎整合性",
+          "score": 20.0,
+          "max": 20,
+          "note": "不足なし"
+        },
+        {
+          "category": "鮮度・更新",
+          "score": 0.0,
+          "max": 15,
+          "note": "最終投稿なし"
+        },
+        {
+          "category": "口コミ",
+          "score": 22.5,
+          "max": 35,
+          "note": "件数176件 / 平均4.0 / 返信率0%"
+        },
+        {
+          "category": "視覚コンテンツ",
+          "score": 15.0,
+          "max": 15,
+          "note": "写真367枚・動画あり"
+        },
+        {
+          "category": "AI検索文脈",
+          "score": 4.5,
+          "max": 15,
+          "note": "説明文が未設定・料理ジャンル未特定"
+        }
+      ],
+      "improvements": [
+        {
+          "rank": 1,
+          "category": "鮮度・更新",
+          "potential": 15.0,
+          "reason": "投稿が一度も行われていない。週1回の投稿運用で最大+15.0点"
+        },
+        {
+          "rank": 2,
+          "category": "口コミ",
+          "potential": 12.5,
+          "reason": "返信率0%。全件返信の仕組み化と質の高い口コミ獲得で最大+12.5点"
+        },
+        {
+          "rank": 3,
+          "category": "AI検索文脈",
+          "potential": 10.5,
+          "reason": "説明文が未設定。鮎の炭火焼き・座敷といった強みの言語化でAI推薦を獲得"
+        }
+      ],
+      "gbpProvenance": "placeholder",
+      "gbpPerformance": {
+        "monthlyViews": 8400,
+        "searchViews": 2600,
+        "mapsViews": 5800,
+        "directSearchRatio": 31,
+        "discoverySearchRatio": 69,
+        "actions": {
+          "directionRequests": 486,
+          "websiteClicks": 112,
+          "phoneCalls": 178
+        },
+        "trends": [
+          {
+            "month": "4月",
+            "reviews": 1,
+            "views": 1800,
+            "directions": 96
+          },
+          {
+            "month": "5月",
+            "reviews": 2,
+            "views": 2900,
+            "directions": 168
+          },
+          {
+            "month": "6月",
+            "reviews": 5,
+            "views": 6100,
+            "directions": 352
+          },
+          {
+            "month": "7月",
+            "reviews": 7,
+            "views": 7600,
+            "directions": 430
+          },
+          {
+            "month": "8月",
+            "reviews": 9,
+            "views": 9200,
+            "directions": 515
+          },
+          {
+            "month": "9月",
+            "reviews": 6,
+            "views": 8400,
+            "directions": 486
+          }
+        ]
+      },
+      "competitors": [
+        {
+          "name": "粟野町観光やな（自社）",
+          "rating": 4.0,
+          "reviews": 176,
+          "isOwn": true,
+          "category": "観光やな"
+        },
+        {
+          "name": "大瀬やな（茂木町）",
+          "rating": 3.9,
+          "reviews": 1228,
+          "isOwn": false,
+          "category": "観光やな"
+        },
+        {
+          "name": "あゆの里 矢沢のやな",
+          "rating": 3.6,
+          "reviews": 512,
+          "isOwn": false,
+          "category": "観光やな"
+        },
+        {
+          "name": "高瀬観光やな",
+          "rating": 3.5,
+          "reviews": 341,
+          "isOwn": false,
+          "category": "観光やな"
+        },
+        {
+          "name": "下沢やな（鹿沼市）",
+          "rating": 4.0,
+          "reviews": 300,
+          "isOwn": false,
+          "category": "観光やな"
+        }
+      ]
     }
   },
   "schemaNote": "競合・診断日は stores[*] 配下に保持する（店舗ごとに市場が異なるため）"
