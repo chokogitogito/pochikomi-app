@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { computeXAxis, computeYAxis, median, niceCeil, placeLabels, rankCompetitor } from "@/lib/charts/scatter";
 
 type Competitor = {
   name: string;
@@ -13,9 +14,12 @@ type Competitor = {
 type Trend = {
   month: string;
   reviews: number;
-  views: number;
-  directions: number;
+  views?: number;
+  directions?: number;
 };
+
+/** 棒グラフ上に縦の目印（例: 「導入」）を付ける月 */
+export type TrendMarker = { month: string; label: string };
 
 const STORE_COLORS = [
   { stroke: "#1b5e3b", fill: "#1b5e3b", bg: "bg-emerald-50", text: "text-emerald-800", border: "border-emerald-200" }, // The蔵ssic
@@ -29,51 +33,50 @@ const STORE_COLORS = [
 
 /**
  * 競合散布図（評価 × 口コミ数）
- * カラーコーディング、文字重なり防止オフセット、インタラクティブ凡例・ツールチップ完備
+ * 軸の上限は表示対象の最大口コミ件数から決め、ラベルは端・近接点でも重ならないよう自動配置する。
+ * 点が近くて読みにくい場合は、下の店舗一覧から店舗を選んで位置・星評価・件数を確認できる。
  */
 export function CompetitorScatterChart({ competitors }: { competitors: Competitor[] }) {
-  const [activeIdx, setActiveIdx] = React.useState<number | null>(null);
+  // 選択（クリックで固定）とホバー（一時的な強調）を分ける。一覧のボタン上でカーソルが外れても選択は残る。
+  const [selectedIdx, setSelectedIdx] = React.useState<number | null>(null);
+  const [hoverIdx, setHoverIdx] = React.useState<number | null>(null);
+  const focusIdx = hoverIdx ?? selectedIdx;
 
   const width = 580;
-  const height = 310;
+  const height = 320;
   const padding = { top: 35, right: 40, bottom: 45, left: 45 };
 
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
 
-  // X軸: 口コミ数 (0 〜 80)
-  const maxX = 80;
-  const scaleX = (val: number) => padding.left + (val / maxX) * innerW;
+  // X軸: 口コミ数。表示対象の最大件数から上限と目盛りを決める
+  const xAxis = React.useMemo(() => computeXAxis(competitors.map((c) => c.reviews)), [competitors]);
+  const scaleX = (val: number) => padding.left + (val / xAxis.max) * innerW;
 
-  // Y軸: 評価 (3.5 〜 5.2)
-  const minY = 3.5;
-  const maxY = 5.2;
-  const scaleY = (val: number) => padding.top + innerH - ((val - minY) / (maxY - minY)) * innerH;
+  // Y軸: 評価
+  const yAxis = React.useMemo(() => computeYAxis(competitors.map((c) => c.rating)), [competitors]);
+  const scaleY = (val: number) => padding.top + innerH - ((val - yAxis.min) / (yAxis.max - yAxis.min)) * innerH;
 
-  // 重なりを避けるための各プロットごとのラベルオフセット設計
-  const getLabelOffset = (idx: number, item: Competitor) => {
-    // The蔵ssic (7件, 5.0) -> 上側に配置
-    if (item.name.includes("The蔵ssic") || (item.isOwn && idx === 0)) {
-      return { dx: 12, dy: -12, anchor: "start" as const };
-    }
-    // SS.GRAND (1件, 5.0) -> 下側に配置してThe蔵ssicと重ならないようにする
-    if (item.name.includes("SS.GRAND") || (item.isOwn && idx === 1)) {
-      return { dx: 12, dy: 16, anchor: "start" as const };
-    }
-    // Lounge Range (57件, 4.9) -> 上側に配置
-    if (item.name.includes("Lounge") || idx === 2) {
-      return { dx: -8, dy: -14, anchor: "end" as const };
-    }
-    // SWING24/7 (56件, 4.9) -> 下側に配置してLounge Rangeと重ならないようにする
-    if (item.name.includes("SWING") || idx === 3) {
-      return { dx: 8, dy: 22, anchor: "start" as const };
-    }
-    // 雀宮練習場 (68件, 4.0) -> 右側に配置
-    return { dx: 12, dy: 4, anchor: "start" as const };
-  };
+  const rivalMedian = median(competitors.filter((c) => !c.isOwn).map((c) => c.reviews));
 
-  const activeItem = activeIdx !== null ? competitors[activeIdx] : null;
-  const activeColor = activeIdx !== null ? STORE_COLORS[activeIdx % STORE_COLORS.length] : null;
+  const labels = React.useMemo(
+    () =>
+      placeLabels(
+        competitors.map((c) => ({
+          cx: scaleX(c.reviews),
+          cy: scaleY(c.rating),
+          text: `${c.name.replace(/（自社）/, "")} ★${c.rating.toFixed(1)} (${c.reviews.toLocaleString()}件)`,
+          isOwn: c.isOwn,
+        })),
+        { left: padding.left + 2, top: padding.top - 6, right: width - 4, bottom: height - padding.bottom - 2 }
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [competitors, xAxis.max, yAxis.min]
+  );
+
+  const selectedItem = selectedIdx !== null ? competitors[selectedIdx] : null;
+  const selectedColor = selectedIdx !== null ? STORE_COLORS[selectedIdx % STORE_COLORS.length] : null;
+  const selectedRank = selectedItem ? rankCompetitor(competitors, selectedItem) : null;
 
   return (
     <div className="space-y-4">
@@ -82,6 +85,8 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full min-w-[520px] h-auto font-sans select-none"
+          role="img"
+          aria-label="競合店舗の星評価と口コミ件数の散布図"
         >
           <defs>
             <filter id="glowEffect" x="-50%" y="-50%" width="200%" height="200%">
@@ -89,53 +94,8 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
             </filter>
           </defs>
 
-          {/* 理想ゾーン（高評価・高口コミエリア）背景ハイライト */}
-          <rect
-            x={scaleX(35)}
-            y={scaleY(5.15)}
-            width={innerW - (scaleX(35) - padding.left)}
-            height={scaleY(4.5) - scaleY(5.15)}
-            fill="#10b981"
-            fillOpacity="0.05"
-            rx="10"
-          />
-          <text
-            x={width - padding.right - 10}
-            y={scaleY(5.08)}
-            fill="#059669"
-            fontSize="10"
-            fontWeight="bold"
-            textAnchor="end"
-            opacity="0.8"
-          >
-            目指すポジション（MEO地域上位表示圏）
-          </text>
-
-          {/* 課題ゾーン（自社2店舗の現在地） */}
-          <rect
-            x={scaleX(0) - 6}
-            y={scaleY(5.18)}
-            width={scaleX(16) - scaleX(0) + 12}
-            height={scaleY(4.75) - scaleY(5.18)}
-            fill="#f59e0b"
-            fillOpacity="0.06"
-            stroke="#f59e0b"
-            strokeWidth="1.2"
-            strokeDasharray="3 3"
-            rx="10"
-          />
-          <text
-            x={scaleX(2)}
-            y={scaleY(5.13)}
-            fill="#d97706"
-            fontSize="9.5"
-            fontWeight="bold"
-          >
-            評価最高水準・口コミ数不足
-          </text>
-
           {/* Y軸グリッド線とラベル */}
-          {[4.0, 4.5, 5.0].map((r) => {
+          {yAxis.ticks.map((r) => {
             const y = scaleY(r);
             return (
               <g key={r}>
@@ -164,7 +124,7 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
           })}
 
           {/* X軸グリッド線とラベル */}
-          {[0, 20, 40, 60, 80].map((c) => {
+          {xAxis.ticks.map((c) => {
             const x = scaleX(c);
             return (
               <g key={c}>
@@ -185,11 +145,25 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
                   fontSize="11"
                   fontWeight="500"
                 >
-                  {c}件
+                  {c.toLocaleString()}件
                 </text>
               </g>
             );
           })}
+
+          {/* 近隣競合（自社以外）の口コミ件数の中央値。固定ゾーンではなくデータから算出 */}
+          {rivalMedian !== null && (
+            <line
+              x1={scaleX(rivalMedian)}
+              y1={padding.top}
+              x2={scaleX(rivalMedian)}
+              y2={height - padding.bottom}
+              stroke="#64748b"
+              strokeWidth="1.2"
+              strokeDasharray="4 3"
+              opacity="0.7"
+            />
+          )}
 
           {/* 軸タイトル */}
           <text
@@ -218,37 +192,44 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
             const cx = scaleX(item.reviews);
             const cy = scaleY(item.rating);
             const color = STORE_COLORS[idx % STORE_COLORS.length];
-            const isHovered = activeIdx === idx;
-            const offset = getLabelOffset(idx, item);
+            const isFocused = focusIdx === idx;
+            const label = labels[idx];
 
             return (
               <g
                 key={idx}
                 className="cursor-pointer transition-all duration-200"
-                onMouseEnter={() => setActiveIdx(idx)}
-                onMouseLeave={() => setActiveIdx(null)}
-                onClick={() => setActiveIdx(activeIdx === idx ? null : idx)}
+                onMouseEnter={() => setHoverIdx(idx)}
+                onMouseLeave={() => setHoverIdx(null)}
+                onClick={() => setSelectedIdx(selectedIdx === idx ? null : idx)}
               >
                 {/* 自社店舗のパルス外リング */}
                 {item.isOwn && (
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={isHovered ? "18" : "13"}
+                    r={isFocused ? "18" : "13"}
                     fill={color.fill}
-                    fillOpacity={isHovered ? "0.3" : "0.16"}
+                    fillOpacity={isFocused ? "0.3" : "0.16"}
                     className="animate-pulse"
                   />
                 )}
 
-                {/* ホバー時の拡大ハイライトリング */}
-                {isHovered && (
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r="15"
-                    fill={color.fill}
-                    fillOpacity="0.2"
+                {/* 強調時の拡大ハイライトリング */}
+                {isFocused && (
+                  <circle cx={cx} cy={cy} r="15" fill={color.fill} fillOpacity="0.2" />
+                )}
+
+                {/* 引出線 */}
+                {label && (
+                  <line
+                    x1={cx}
+                    y1={cy}
+                    x2={label.anchorX}
+                    y2={label.anchorY}
+                    stroke={color.stroke}
+                    strokeWidth="1"
+                    strokeOpacity={isFocused ? "0.9" : "0.4"}
                   />
                 )}
 
@@ -256,71 +237,69 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={isHovered ? "9" : item.isOwn ? "7.5" : "6"}
+                  r={isFocused ? "9" : item.isOwn ? "7.5" : "6"}
                   fill={color.fill}
                   stroke="#ffffff"
-                  strokeWidth={isHovered ? "3" : "2"}
-                  filter={isHovered ? "url(#glowEffect)" : undefined}
+                  strokeWidth={isFocused ? "3" : "2"}
+                  filter={isFocused ? "url(#glowEffect)" : undefined}
                 />
 
-                {/* 引出線（近接店舗のラベル用） */}
-                <line
-                  x1={cx}
-                  y1={cy}
-                  x2={cx + offset.dx}
-                  y2={cy + offset.dy}
-                  stroke={color.stroke}
-                  strokeWidth="1"
-                  strokeOpacity={isHovered ? "0.9" : "0.4"}
-                />
-
-                {/* グラフ上常時表示のスマートラベル */}
-                <g transform={`translate(${cx + offset.dx}, ${cy + offset.dy})`}>
-                  <rect
-                    x={offset.anchor === "end" ? -110 : -4}
-                    y="-11"
-                    width={114}
-                    height="18"
-                    rx="4"
-                    fill={isHovered ? color.fill : "#ffffff"}
-                    stroke={color.stroke}
-                    strokeWidth={isHovered ? "1.5" : "1"}
-                    fillOpacity={isHovered ? "1" : "0.92"}
-                    className="shadow-xs transition-colors"
-                  />
-                  <text
-                    x={offset.anchor === "end" ? -6 : 3}
-                    y="2"
-                    textAnchor={offset.anchor}
-                    fill={isHovered ? "#ffffff" : "#1e293b"}
-                    fontSize="9.5"
-                    fontWeight={isHovered || item.isOwn ? "bold" : "600"}
-                  >
-                    {item.name.replace(/（自社）/, "")} ★{item.rating} ({item.reviews}件)
-                  </text>
-                </g>
+                {/* ラベル（重ならない位置へ自動配置） */}
+                {label && (
+                  <g>
+                    <rect
+                      x={label.x}
+                      y={label.y}
+                      width={label.width}
+                      height={label.height}
+                      rx="4"
+                      fill={isFocused ? color.fill : "#ffffff"}
+                      stroke={color.stroke}
+                      strokeWidth={isFocused ? "1.5" : "1"}
+                      fillOpacity={isFocused ? "1" : "0.94"}
+                    />
+                    <text
+                      x={label.x + 6}
+                      y={label.y + 12.5}
+                      fill={isFocused ? "#ffffff" : "#1e293b"}
+                      fontSize="9.5"
+                      fontWeight={isFocused || item.isOwn ? "bold" : "600"}
+                    >
+                      {item.name.replace(/（自社）/, "")} ★{item.rating.toFixed(1)} ({item.reviews.toLocaleString()}件)
+                    </text>
+                  </g>
+                )}
               </g>
             );
           })}
         </svg>
       </div>
 
-      {/* インタラクティブ凡例リスト（各店舗ごとの色分けカード） */}
+      {rivalMedian !== null && (
+        <p className="text-[11px] text-text-tertiary">
+          <span className="inline-block w-5 border-t-2 border-dashed border-slate-500 align-middle mr-1.5" />
+          点線は近隣の競合店舗（自社を除く）の口コミ件数の中央値（{rivalMedian.toLocaleString()}件）です。
+        </p>
+      )}
+
+      {/* 店舗一覧（点が近くて読みにくい場合も、ここから選んで確認できる） */}
       <div className="pt-3 border-t border-border-subtle">
         <p className="text-[11px] font-bold text-text-tertiary mb-2">
-          店舗一覧（クリックまたはカーソルを合わせるとグラフ上でハイライトされます）
+          店舗一覧（選択すると、グラフ上で強調され位置・星評価・件数を確認できます）
         </p>
         <div className="flex flex-wrap gap-2">
           {competitors.map((item, idx) => {
             const color = STORE_COLORS[idx % STORE_COLORS.length];
-            const isSelected = activeIdx === idx;
+            const isSelected = selectedIdx === idx;
 
             return (
               <button
                 key={idx}
-                onClick={() => setActiveIdx(isSelected ? null : idx)}
-                onMouseEnter={() => setActiveIdx(idx)}
-                onMouseLeave={() => setActiveIdx(null)}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => setSelectedIdx(isSelected ? null : idx)}
+                onMouseEnter={() => setHoverIdx(idx)}
+                onMouseLeave={() => setHoverIdx(null)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold pressable transition-all flex items-center gap-2 border ${
                   isSelected
                     ? "bg-surface shadow-sm ring-2 ring-brand scale-105 border-transparent"
@@ -333,7 +312,7 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
                 />
                 <span className="font-bold">{item.name}</span>
                 <span className="opacity-75 text-[11px]">
-                  ★{item.rating} ({item.reviews}件)
+                  ★{item.rating.toFixed(1)} ({item.reviews.toLocaleString()}件)
                 </span>
                 {item.isOwn && (
                   <span className="text-[10px] font-bold bg-brand text-white px-1.5 py-0.2 rounded-full">
@@ -346,31 +325,31 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
         </div>
       </div>
 
-      {/* 選択店舗のハイライト詳細カード（タップ/ホバー時に展開） */}
-      {activeItem && activeColor && (
-        <div className="p-3 rounded-xl bg-surface border border-border-default shadow-sm flex items-center justify-between text-xs animate-fade-in">
+      {/* 選択店舗の詳細カード（固定の文言ではなく、データから順位を算出して表示） */}
+      {selectedItem && selectedColor && selectedRank && (
+        <div className="p-3 rounded-xl bg-surface border border-border-default shadow-sm flex items-center justify-between text-xs animate-fade-in" data-testid="scatter-detail">
           <div className="flex items-center gap-2.5">
             <span
               className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs"
-              style={{ backgroundColor: activeColor.fill }}
+              style={{ backgroundColor: selectedColor.fill }}
             />
             <div>
               <p className="font-bold text-text-primary text-sm flex items-center gap-1.5">
-                {activeItem.name}
+                {selectedItem.name}
                 <span className="text-[10px] font-medium text-text-tertiary">
-                  （{activeItem.category}）
+                  （{selectedItem.category}）
                 </span>
               </p>
               <p className="text-text-secondary text-[11px] mt-0.5">
-                Googleマップ評価: <strong>★{activeItem.rating}</strong> / 口コミ数: <strong>{activeItem.reviews}件</strong>
-                {activeItem.isOwn
-                  ? " — 評価は最高水準。ポチコミで口コミ件数を増やすことで地域No.1表示へ。"
-                  : " — 近隣の主要競合店舗。"}
+                Googleマップ評価: <strong>★{selectedItem.rating.toFixed(1)}</strong>（{selectedRank.total}店舗中{selectedRank.ratingRank}位） / 口コミ数:{" "}
+                <strong>{selectedItem.reviews.toLocaleString()}件</strong>（{selectedRank.total}店舗中{selectedRank.reviewRank}位）
+                {selectedItem.isOwn ? " — 自社" : " — 近隣の競合店舗"}
               </p>
             </div>
           </div>
           <button
-            onClick={() => setActiveIdx(null)}
+            type="button"
+            onClick={() => setSelectedIdx(null)}
             className="text-[11px] text-text-tertiary hover:text-text-primary px-2 py-1"
           >
             ✕ 閉じる
@@ -384,24 +363,18 @@ export function CompetitorScatterChart({ competitors }: { competitors: Competito
 /**
  * 口コミ獲得とGoogleマップ集客（ルート検索・表示数）の相関推移グラフ
  */
-/** 軸の上限を切りのよい値へ丸める。刻みが粗いとバーが低く潰れるため細かめに取る */
-function niceCeil(value: number): number {
-  if (value <= 0) return 1;
-  const exp = Math.floor(Math.log10(value));
-  const base = Math.pow(10, exp);
-  const n = value / base;
-  const steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
-  const step = steps.find((x) => n <= x) ?? 10;
-  return step * base;
-}
-
 export function GbpTrendChart({
   trends,
   showDirections = true,
+  markers = [],
+  ariaLabel,
 }: {
   trends: Trend[];
   /** ルート検索の折れ線を出すか。falseなら口コミ獲得数のみの単系列グラフになる */
   showDirections?: boolean;
+  /** 指定した月に縦の目印とラベル（例: 「導入」）を付ける */
+  markers?: TrendMarker[];
+  ariaLabel?: string;
 }) {
   const count = Math.max(trends.length, 2);
   // 期間が長いほど横に伸ばし、月ラベルとバーが潰れないようにする
@@ -416,7 +389,7 @@ export function GbpTrendChart({
   const getX = (idx: number) => padding.left + idx * stepX;
 
   // 軸はデータから算出する（店舗によって桁が2桁以上違うため固定値にしない）
-  const maxDir = niceCeil(Math.max(...trends.map((t) => t.directions), 1) * 1.15);
+  const maxDir = niceCeil(Math.max(...trends.map((t) => t.directions ?? 0), 1) * 1.15);
   const scaleDir = (val: number) => padding.top + innerH - (val / maxDir) * innerH;
 
   // 単系列のときは口コミがグラフ全体を使えるよう、余白を詰める
@@ -427,13 +400,14 @@ export function GbpTrendChart({
   const labelEvery = count <= 9 ? 1 : count <= 18 ? 2 : count <= 26 ? 3 : 4;
   // 単系列なら値ラベルを出せる本数が増える
   const showPointValues = count <= (showDirections ? 8 : 18);
-  const barWidth = Math.max(6, Math.min(20, stepX * 0.55));
+  // 点数が少ないときは棒を太くして増加が一目で読めるようにする
+  const barWidth = Math.max(6, Math.min(count <= 6 ? 56 : 20, stepX * (count <= 6 ? 0.45 : 0.55)));
   // グリッドは実際に軸として使う系列に合わせる
   const gridBase = showDirections ? maxDir : maxRev;
   const gridLines = [0.25, 0.5, 0.75, 1].map((r) => Math.round(gridBase * r));
 
   const pathD = trends
-    .map((t, idx) => `${idx === 0 ? "M" : "L"} ${getX(idx)} ${scaleDir(t.directions)}`)
+    .map((t, idx) => `${idx === 0 ? "M" : "L"} ${getX(idx)} ${scaleDir(t.directions ?? 0)}`)
     .join(" ");
 
   const areaD = `${pathD} L ${getX(trends.length - 1)} ${padding.top + innerH} L ${getX(0)} ${padding.top + innerH} Z`;
@@ -443,6 +417,8 @@ export function GbpTrendChart({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="w-full min-w-[480px] h-auto font-sans"
+        role={ariaLabel ? "img" : undefined}
+        aria-label={ariaLabel}
       >
         <defs>
           <linearGradient id="trendArea" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -510,6 +486,30 @@ export function GbpTrendChart({
           );
         })}
 
+        {markers.map((m) => {
+          const idx = trends.findIndex((t) => t.month === m.month);
+          if (idx < 0) return null;
+          const mx = getX(idx);
+          const labelW = m.label.length * 11 + 16;
+          return (
+            <g key={`marker-${m.month}`} data-testid="trend-marker">
+              <line
+                x1={mx}
+                y1={padding.top - 2}
+                x2={mx}
+                y2={padding.top + innerH}
+                stroke="#d97706"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
+              />
+              <rect x={mx - labelW / 2} y={padding.top - 20} width={labelW} height="17" rx="8.5" fill="#d97706" />
+              <text x={mx} y={padding.top - 8} textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="bold">
+                {m.label}
+              </text>
+            </g>
+          );
+        })}
+
         {showDirections && (
           <>
             <path d={areaD} fill="url(#trendArea)" />
@@ -519,7 +519,7 @@ export function GbpTrendChart({
 
         {trends.map((t, idx) => {
           const cx = getX(idx);
-          const cy = scaleDir(t.directions);
+          const cy = scaleDir(t.directions ?? 0);
           return (
             <g key={idx}>
               {showDirections && (
@@ -540,7 +540,7 @@ export function GbpTrendChart({
                       className="fill-text-primary font-bold"
                       fontSize="10"
                     >
-                      {t.directions.toLocaleString()}件
+                      {(t.directions ?? 0).toLocaleString()}件
                     </text>
                   )}
                 </>

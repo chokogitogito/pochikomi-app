@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Logo } from "@/components/Logo";
+import { resolveLoginRedirect } from "@/lib/auth/safeRedirect";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -29,7 +30,9 @@ export default function AdminLoginPage() {
       if (error) {
         setErrorMsg(error.message || "ログインに失敗しました。認証情報を確認してください。");
       } else if (data.session) {
-        router.push("/admin");
+        // ミドルウェアが付けた ?redirect=（/admin・/demo 配下のみ許可）へ戻す
+        const redirectTo = resolveLoginRedirect(new URLSearchParams(window.location.search).get("redirect"));
+        router.push(redirectTo);
         router.refresh();
       }
     } catch {
