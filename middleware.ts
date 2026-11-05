@@ -39,6 +39,18 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // 商談デモ（/demo 配下）は既存の管理者ログインが必須。未認証はログインへ誘導する。
+  if (pathname === "/demo" || pathname.startsWith("/demo/")) {
+    if (!user) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/admin/login";
+      loginUrl.search = "";
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return response;
+  }
+
   // /admin/login や /admin/reset-password 以外の /admin ページは認証必須
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login") && !pathname.startsWith("/admin/reset-password")) {
     if (!user) {
@@ -62,5 +74,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/demo/:path*",
   ],
 };

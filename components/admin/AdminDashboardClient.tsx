@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import meoData from "@/data/meo-diagnosis.json";
 import { CompetitorScatterChart, GbpTrendChart, FunnelChart } from "@/components/admin/MeoCharts";
+import { median } from "@/lib/charts/scatter";
 import type { Store, StoreMetrics, FunnelMetricsSummary } from "@/lib/types";
 
 interface AdminDashboardClientProps {
@@ -602,7 +603,7 @@ export default function AdminDashboardClient({
                     <br />
                   </span>
                 ))}
-                満足度は最高水準ですが、件数が少なくマップで埋もれています。
+                {positionSummary(ownCompetitors, rivalCompetitors)}
               </p>
             </div>
             <div className="p-3 rounded-xl bg-surface-secondary">
@@ -637,6 +638,33 @@ export default function AdminDashboardClient({
       )}
     </div>
   );
+}
+
+/**
+ * 自社と近隣競合の比較結果を、固定文ではなくデータから文章にする。
+ * （口コミ件数が競合の中央値以上の店舗に「件数が少ない」と出さないため）
+ */
+function positionSummary(
+  own: { rating: number; reviews: number }[],
+  rivals: { rating: number; reviews: number }[]
+): string {
+  if (own.length === 0 || rivals.length === 0) return "";
+  const ownBestRating = Math.max(...own.map((c) => c.rating));
+  const ownMaxReviews = Math.max(...own.map((c) => c.reviews));
+  const rivalBestRating = Math.max(...rivals.map((c) => c.rating));
+  const rivalMedianReviews = median(rivals.map((c) => c.reviews)) ?? 0;
+
+  const ratingText =
+    ownBestRating > rivalBestRating
+      ? "評価は近隣で最も高い水準です。"
+      : ownBestRating === rivalBestRating
+        ? "評価は近隣の最高水準と並んでいます。"
+        : "評価は近隣の最高水準を下回っています。";
+  const reviewText =
+    ownMaxReviews >= rivalMedianReviews
+      ? `口コミ件数は近隣競合の中央値（${rivalMedianReviews.toLocaleString()}件）以上です。`
+      : `口コミ件数は近隣競合の中央値（${rivalMedianReviews.toLocaleString()}件）より少なく、マップで埋もれやすい状況です。`;
+  return `${ratingText}${reviewText}`;
 }
 
 function KpiCard({

@@ -124,6 +124,15 @@ export default function AdminLayout({
 
         <div className="p-4 border-t border-border-subtle space-y-2">
           <Link
+            href="/demo"
+            className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-brand bg-brand-light hover:bg-brand-subtle transition-all pressable"
+          >
+            <span>商談デモを開く</span>
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <Link
             href="/survey/classic"
             target="_blank"
             className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-brand-light transition-all pressable"
